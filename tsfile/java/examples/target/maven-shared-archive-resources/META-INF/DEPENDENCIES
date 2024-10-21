@@ -1,0 +1,67 @@
+// ------------------------------------------------------------------
+// Transitive dependencies of this project determined from the
+// maven pom organized by organization.
+// ------------------------------------------------------------------
+
+TSFile: Java: Examples
+
+
+From: 'an unknown organization'
+
+  - LZ4 and xxHash (https://github.com/lz4/lz4-java) org.lz4:lz4-java:jar:1.8.0
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - XZ for Java (https://tukaani.org/xz/java.html) org.tukaani:xz:jar:1.9
+    License: Public Domain 
+
+
+From: 'ANTLR' (http://www.antlr.org)
+
+  - ANTLR 4 Runtime (http://www.antlr.org/antlr4-runtime) org.antlr:antlr4-runtime:jar:4.9.3
+    License: The BSD License  (http://www.antlr.org/license.html)
+
+
+From: 'com.github.luben'
+
+  - zstd-jni (https://github.com/luben/zstd-jni) com.github.luben:zstd-jni:jar:1.5.5-5
+    License: BSD 2-Clause License  (https://opensource.org/licenses/BSD-2-Clause)
+
+
+From: 'QOS.ch' (http://www.qos.ch)
+
+  - Logback Classic Module (http://logback.qos.ch/logback-classic) ch.qos.logback:logback-classic:jar:1.3.13
+    License: Eclipse Public License - v 1.0  (http://www.eclipse.org/legal/epl-v10.html)
+    License: GNU Lesser General Public License  (http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html)
+
+  - Logback Core Module (http://logback.qos.ch/logback-core) ch.qos.logback:logback-core:jar:1.3.13
+    License: Eclipse Public License - v 1.0  (http://www.eclipse.org/legal/epl-v10.html)
+    License: GNU Lesser General Public License  (http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html)
+
+  - SLF4J API Module (http://www.slf4j.org) org.slf4j:slf4j-api:jar:2.0.9
+    License: MIT License  (http://www.opensource.org/licenses/mit-license.php)
+
+
+From: 'The Apache Software Foundation' (https://www.apache.org/)
+
+  - Apache Commons IO (https://commons.apache.org/proper/commons-io/) commons-io:commons-io:jar:2.15.1
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Commons Lang (https://commons.apache.org/proper/commons-lang/) org.apache.commons:commons-lang3:jar:3.13.0
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - TsFile: Java: Common (https://www.apache.org/tsfile-parent/tsfile-java/common/) org.apache.tsfile:common:jar:7.0.1-SNAPSHOT
+    License: The Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - TsFile: Java: TsFile (https://www.apache.org/tsfile-parent/tsfile-java/tsfile/) org.apache.tsfile:tsfile:jar:7.0.1-SNAPSHOT
+    License: The Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+
+From: 'xerial.org' (https://github.com/xerial/snappy-java)
+
+  - snappy-java (https://github.com/xerial/snappy-java) org.xerial.snappy:snappy-java:bundle:1.1.10.4
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.html)
+
+
+
+
+

@@ -1,0 +1,37 @@
+
+*****************************************************
+Summary
+-------
+Generated at: 2024-09-19T20:59:16+08:00
+
+Notes: 0
+Binaries: 0
+Archives: 0
+Standards: 11
+
+Apache Licensed: 11
+Generated Documents: 0
+
+JavaDocs are generated, thus a license header is optional.
+Generated files do not require license headers.
+
+0 Unknown Licenses
+
+*****************************************************
+  Files with Apache License headers will be marked AL
+  Binary files (which do not require any license headers) will be marked B
+  Compressed archives will be marked A
+  Notices, licenses etc. will be marked N
+  AL    /home/fanfan/iotdb_modi/tsfile/java/examples/pom.xml
+  AL    /home/fanfan/iotdb_modi/tsfile/java/examples/readme.md
+  AL    /home/fanfan/iotdb_modi/tsfile/java/examples/src/main/java/org/apache/tsfile/Constant.java
+  AL    /home/fanfan/iotdb_modi/tsfile/java/examples/src/main/java/org/apache/tsfile/DataGenerator.java
+  AL    /home/fanfan/iotdb_modi/tsfile/java/examples/src/main/java/org/apache/tsfile/TsFileForceAppendWrite.java
+  AL    /home/fanfan/iotdb_modi/tsfile/java/examples/src/main/java/org/apache/tsfile/TsFileRead.java
+  AL    /home/fanfan/iotdb_modi/tsfile/java/examples/src/main/java/org/apache/tsfile/TsFileSequenceRead.java
+  AL    /home/fanfan/iotdb_modi/tsfile/java/examples/src/main/java/org/apache/tsfile/TsFileWriteAlignedWithTablet.java
+  AL    /home/fanfan/iotdb_modi/tsfile/java/examples/src/main/java/org/apache/tsfile/TsFileWriteAlignedWithTSRecord.java
+  AL    /home/fanfan/iotdb_modi/tsfile/java/examples/src/main/java/org/apache/tsfile/TsFileWriteWithTablet.java
+  AL    /home/fanfan/iotdb_modi/tsfile/java/examples/src/main/java/org/apache/tsfile/TsFileWriteWithTSRecord.java
+ 
+*****************************************************

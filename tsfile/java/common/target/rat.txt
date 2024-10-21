@@ -1,0 +1,40 @@
+
+*****************************************************
+Summary
+-------
+Generated at: 2024-10-17T13:44:17+08:00
+
+Notes: 0
+Binaries: 0
+Archives: 0
+Standards: 14
+
+Apache Licensed: 14
+Generated Documents: 0
+
+JavaDocs are generated, thus a license header is optional.
+Generated files do not require license headers.
+
+0 Unknown Licenses
+
+*****************************************************
+  Files with Apache License headers will be marked AL
+  Binary files (which do not require any license headers) will be marked B
+  Compressed archives will be marked A
+  Notices, licenses etc. will be marked N
+  AL    /home/fanfan/iotdb_modi/tsfile/java/common/pom.xml
+  AL    /home/fanfan/iotdb_modi/tsfile/java/common/src/main/java/org/apache/tsfile/block/column/Column.java
+  AL    /home/fanfan/iotdb_modi/tsfile/java/common/src/main/java/org/apache/tsfile/block/column/ColumnBuilder.java
+  AL    /home/fanfan/iotdb_modi/tsfile/java/common/src/main/java/org/apache/tsfile/block/column/ColumnBuilderStatus.java
+  AL    /home/fanfan/iotdb_modi/tsfile/java/common/src/main/java/org/apache/tsfile/block/column/ColumnEncoding.java
+  AL    /home/fanfan/iotdb_modi/tsfile/java/common/src/main/java/org/apache/tsfile/block/TsBlockBuilderStatus.java
+  AL    /home/fanfan/iotdb_modi/tsfile/java/common/src/main/java/org/apache/tsfile/enums/TSDataType.java
+  AL    /home/fanfan/iotdb_modi/tsfile/java/common/src/main/java/org/apache/tsfile/utils/Accountable.java
+  AL    /home/fanfan/iotdb_modi/tsfile/java/common/src/main/java/org/apache/tsfile/utils/Binary.java
+  AL    /home/fanfan/iotdb_modi/tsfile/java/common/src/main/java/org/apache/tsfile/utils/BitMap.java
+  AL    /home/fanfan/iotdb_modi/tsfile/java/common/src/main/java/org/apache/tsfile/utils/Constants.java
+  AL    /home/fanfan/iotdb_modi/tsfile/java/common/src/main/java/org/apache/tsfile/utils/RamUsageEstimator.java
+  AL    /home/fanfan/iotdb_modi/tsfile/java/common/src/main/java/org/apache/tsfile/utils/TsPrimitiveType.java
+  AL    /home/fanfan/iotdb_modi/tsfile/java/common/src/main/java/org/apache/tsfile/write/UnSupportedDataTypeException.java
+ 
+*****************************************************

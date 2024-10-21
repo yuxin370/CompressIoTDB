@@ -1,0 +1,7 @@
+org/apache/tsfile/tools/SchemaParser$Schema.class
+org/apache/tsfile/tools/SchemaParser$Column.class
+org/apache/tsfile/tools/SchemaParser$IDColumns.class
+org/apache/tsfile/tools/TsFileTool$1.class
+org/apache/tsfile/tools/SchemaParser.class
+org/apache/tsfile/tools/TsFileTool.class
+org/apache/tsfile/tools/DateTimeUtils.class

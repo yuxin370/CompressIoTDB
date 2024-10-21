@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="9.3">
+<file name="/home/fanfan/iotdb_modi/tsfile/java/common/src/main/java/org/apache/tsfile/block/column/Column.java">
+<error line="34" severity="warning" message="Single-line Javadoc comment should be multi-line." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SingleLineJavadocCheck"/>
+<error line="36" column="15" severity="warning" message="Expected @throws tag for &apos;UnsupportedOperationException&apos;." source="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck"/>
+<error line="39" severity="warning" message="Single-line Javadoc comment should be multi-line." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SingleLineJavadocCheck"/>
+<error line="41" column="15" severity="warning" message="Expected @throws tag for &apos;UnsupportedOperationException&apos;." source="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck"/>
+<error line="44" severity="warning" message="Single-line Javadoc comment should be multi-line." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SingleLineJavadocCheck"/>
+<error line="46" column="15" severity="warning" message="Expected @throws tag for &apos;UnsupportedOperationException&apos;." source="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck"/>
+<error line="49" severity="warning" message="Single-line Javadoc comment should be multi-line." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SingleLineJavadocCheck"/>
+<error line="51" column="15" severity="warning" message="Expected @throws tag for &apos;UnsupportedOperationException&apos;." source="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck"/>
+<error line="54" severity="warning" message="Single-line Javadoc comment should be multi-line." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SingleLineJavadocCheck"/>
+<error line="56" column="15" severity="warning" message="Expected @throws tag for &apos;UnsupportedOperationException&apos;." source="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck"/>
+<error line="59" severity="warning" message="Single-line Javadoc comment should be multi-line." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SingleLineJavadocCheck"/>
+<error line="61" column="15" severity="warning" message="Expected @throws tag for &apos;UnsupportedOperationException&apos;." source="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck"/>
+<error line="64" severity="warning" message="Single-line Javadoc comment should be multi-line." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SingleLineJavadocCheck"/>
+<error line="66" column="15" severity="warning" message="Expected @throws tag for &apos;UnsupportedOperationException&apos;." source="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck"/>
+<error line="71" column="15" severity="warning" message="Expected @throws tag for &apos;UnsupportedOperationException&apos;." source="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck"/>
+<error line="76" column="15" severity="warning" message="Expected @throws tag for &apos;UnsupportedOperationException&apos;." source="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck"/>
+<error line="81" column="15" severity="warning" message="Expected @throws tag for &apos;UnsupportedOperationException&apos;." source="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck"/>
+<error line="86" column="15" severity="warning" message="Expected @throws tag for &apos;UnsupportedOperationException&apos;." source="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck"/>
+<error line="91" column="15" severity="warning" message="Expected @throws tag for &apos;UnsupportedOperationException&apos;." source="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck"/>
+<error line="96" column="15" severity="warning" message="Expected @throws tag for &apos;UnsupportedOperationException&apos;." source="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck"/>
+<error line="101" column="15" severity="warning" message="Expected @throws tag for &apos;UnsupportedOperationException&apos;." source="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck"/>
+<error line="104" severity="warning" message="Single-line Javadoc comment should be multi-line." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SingleLineJavadocCheck"/>
+<error line="106" column="15" severity="warning" message="Expected @throws tag for &apos;UnsupportedOperationException&apos;." source="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck"/>
+<error line="115" severity="warning" message="First sentence of Javadoc is missing an ending period." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SummaryJavadocCheck"/>
+<error line="163" severity="warning" message="First sentence of Javadoc is missing an ending period." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SummaryJavadocCheck"/>
+</file>
+<file name="/home/fanfan/iotdb_modi/tsfile/java/common/src/main/java/org/apache/tsfile/block/column/ColumnBuilder.java">
+<error line="28" severity="warning" message="First sentence of Javadoc is missing an ending period." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SummaryJavadocCheck"/>
+<error line="30" column="15" severity="warning" message="Expected @throws tag for &apos;UnsupportedOperationException&apos;." source="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck"/>
+<error line="33" severity="warning" message="First sentence of Javadoc is missing an ending period." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SummaryJavadocCheck"/>
+<error line="35" column="15" severity="warning" message="Expected @throws tag for &apos;UnsupportedOperationException&apos;." source="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck"/>
+<error line="38" severity="warning" message="First sentence of Javadoc is missing an ending period." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SummaryJavadocCheck"/>
+<error line="40" column="15" severity="warning" message="Expected @throws tag for &apos;UnsupportedOperationException&apos;." source="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck"/>
+<error line="43" severity="warning" message="First sentence of Javadoc is missing an ending period." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SummaryJavadocCheck"/>
+<error line="45" column="15" severity="warning" message="Expected @throws tag for &apos;UnsupportedOperationException&apos;." source="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck"/>
+<error line="48" severity="warning" message="First sentence of Javadoc is missing an ending period." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SummaryJavadocCheck"/>
+<error line="50" column="15" severity="warning" message="Expected @throws tag for &apos;UnsupportedOperationException&apos;." source="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck"/>
+<error line="53" severity="warning" message="First sentence of Javadoc is missing an ending period." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SummaryJavadocCheck"/>
+<error line="55" column="15" severity="warning" message="Expected @throws tag for &apos;UnsupportedOperationException&apos;." source="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck"/>
+<error line="58" severity="warning" message="First sentence of Javadoc is missing an ending period." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SummaryJavadocCheck"/>
+<error line="60" column="15" severity="warning" message="Expected @throws tag for &apos;UnsupportedOperationException&apos;." source="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck"/>
+<error line="63" severity="warning" message="First sentence of Javadoc is missing an ending period." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SummaryJavadocCheck"/>
+<error line="65" column="15" severity="warning" message="Expected @throws tag for &apos;UnsupportedOperationException&apos;." source="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck"/>
+<error line="68" severity="warning" message="First sentence of Javadoc is missing an ending period." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SummaryJavadocCheck"/>
+</file>
+<file name="/home/fanfan/iotdb_modi/tsfile/java/common/src/main/java/org/apache/tsfile/block/column/ColumnBuilderStatus.java">
+<error line="58" severity="warning" message="First sentence of Javadoc is missing an ending period." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SummaryJavadocCheck"/>
+<error line="63" column="17" severity="warning" message="Expected @throws tag for &apos;IllegalArgumentException&apos;." source="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck"/>
+</file>
+<file name="/home/fanfan/iotdb_modi/tsfile/java/common/src/main/java/org/apache/tsfile/block/column/ColumnEncoding.java">
+<error line="29" severity="warning" message="First sentence of Javadoc is missing an ending period." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SummaryJavadocCheck"/>
+</file>
+<file name="/home/fanfan/iotdb_modi/tsfile/java/common/src/main/java/org/apache/tsfile/block/TsBlockBuilderStatus.java">
+</file>
+<file name="/home/fanfan/iotdb_modi/tsfile/java/common/src/main/java/org/apache/tsfile/enums/TSDataType.java">
+<error line="30" column="13" severity="warning" message="Abbreviation in name &apos;TSDataType&apos; must contain no more than &apos;2&apos; consecutive capital letters." source="com.puppycrawl.tools.checkstyle.checks.naming.AbbreviationAsWordInNameCheck"/>
+<error line="64" severity="warning" message="First sentence of Javadoc is missing an ending period." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SummaryJavadocCheck"/>
+<error line="66" column="3" severity="warning" message="Only one statement per line allowed." source="com.puppycrawl.tools.checkstyle.checks.coding.OneStatementPerLineCheck"/>
+</file>
+<file name="/home/fanfan/iotdb_modi/tsfile/java/common/src/main/java/org/apache/tsfile/utils/Accountable.java">
+</file>
+<file name="/home/fanfan/iotdb_modi/tsfile/java/common/src/main/java/org/apache/tsfile/utils/Binary.java">
+<error line="19" column="1" severity="warning" message="&apos;package&apos; should be separated from previous line." source="com.puppycrawl.tools.checkstyle.checks.whitespace.EmptyLineSeparatorCheck"/>
+</file>
+<file name="/home/fanfan/iotdb_modi/tsfile/java/common/src/main/java/org/apache/tsfile/utils/BitMap.java">
+</file>
+<file name="/home/fanfan/iotdb_modi/tsfile/java/common/src/main/java/org/apache/tsfile/utils/Constants.java">
+<error line="32" column="24" severity="warning" message="&apos;}&apos; at column 24 should be alone on a line." source="RightCurlyAlone"/>
+<error line="52" severity="warning" message="First sentence of Javadoc is missing an ending period." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SummaryJavadocCheck"/>
+<error line="54" severity="warning" message="First sentence of Javadoc is missing an ending period." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SummaryJavadocCheck"/>
+<error line="64" severity="warning" message="First sentence of Javadoc is missing an ending period." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SummaryJavadocCheck"/>
+<error line="82" column="36" severity="warning" message="Empty catch block." source="com.puppycrawl.tools.checkstyle.checks.blocks.EmptyCatchBlockCheck"/>
+</file>
+<file name="/home/fanfan/iotdb_modi/tsfile/java/common/src/main/java/org/apache/tsfile/utils/RamUsageEstimator.java">
+<error line="60" column="32" severity="warning" message="&apos;}&apos; at column 32 should be alone on a line." source="RightCurlyAlone"/>
+<error line="62" severity="warning" message="First sentence of Javadoc is missing an ending period." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SummaryJavadocCheck"/>
+<error line="110" column="3" severity="warning" message="Each variable declaration must be in its own statement." source="com.puppycrawl.tools.checkstyle.checks.coding.MultipleVariableDeclarationsCheck"/>
+<error line="112" column="3" severity="warning" message="Each variable declaration must be in its own statement." source="com.puppycrawl.tools.checkstyle.checks.coding.MultipleVariableDeclarationsCheck"/>
+<error line="114" severity="warning" message="First sentence of Javadoc is missing an ending period." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SummaryJavadocCheck"/>
+<error line="138" column="24" severity="warning" message="Abbreviation in name &apos;getVMOptionMethod&apos; must contain no more than &apos;2&apos; consecutive capital letters." source="com.puppycrawl.tools.checkstyle.checks.naming.AbbreviationAsWordInNameCheck"/>
+<error line="205" severity="warning" message="Single-line Javadoc comment should be multi-line." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SingleLineJavadocCheck"/>
+<error line="424" column="3" severity="warning" message="All overloaded methods should be placed next to each other. Placing non-overloaded methods in between overloaded methods with the same type is a violation. Previous overloaded method located at line &apos;275&apos;." source="com.puppycrawl.tools.checkstyle.checks.coding.OverloadMethodsDeclarationOrderCheck"/>
+<error line="451" column="5" severity="warning" message="&apos;if&apos; construct must use &apos;{}&apos;s." source="com.puppycrawl.tools.checkstyle.checks.blocks.NeedBracesCheck"/>
+<error line="469" column="5" severity="warning" message="&apos;if&apos; construct must use &apos;{}&apos;s." source="com.puppycrawl.tools.checkstyle.checks.blocks.NeedBracesCheck"/>
+<error line="471" column="5" severity="warning" message="&apos;if&apos; construct must use &apos;{}&apos;s." source="com.puppycrawl.tools.checkstyle.checks.blocks.NeedBracesCheck"/>
+<error line="503" severity="warning" message="Forbidden summary fragment." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SummaryJavadocCheck"/>
+</file>
+<file name="/home/fanfan/iotdb_modi/tsfile/java/common/src/main/java/org/apache/tsfile/utils/TsPrimitiveType.java">
+<error line="19" column="1" severity="warning" message="&apos;package&apos; should be separated from previous line." source="com.puppycrawl.tools.checkstyle.checks.whitespace.EmptyLineSeparatorCheck"/>
+<error line="55" column="19" severity="warning" message="Expected @throws tag for &apos;UnSupportedDataTypeException&apos;." source="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck"/>
+<error line="86" column="19" severity="warning" message="Expected @throws tag for &apos;UnSupportedDataTypeException&apos;." source="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck"/>
+<error line="183" column="25" severity="warning" message="&apos;}&apos; at column 25 should be alone on a line." source="RightCurlyAlone"/>
+<error line="255" column="21" severity="warning" message="&apos;}&apos; at column 21 should be alone on a line." source="RightCurlyAlone"/>
+<error line="327" column="22" severity="warning" message="&apos;}&apos; at column 22 should be alone on a line." source="RightCurlyAlone"/>
+<error line="399" column="23" severity="warning" message="&apos;}&apos; at column 23 should be alone on a line." source="RightCurlyAlone"/>
+<error line="471" column="24" severity="warning" message="&apos;}&apos; at column 24 should be alone on a line." source="RightCurlyAlone"/>
+<error line="543" column="24" severity="warning" message="&apos;}&apos; at column 24 should be alone on a line." source="RightCurlyAlone"/>
+<error line="615" column="24" severity="warning" message="&apos;}&apos; at column 24 should be alone on a line." source="RightCurlyAlone"/>
+</file>
+<file name="/home/fanfan/iotdb_modi/tsfile/java/common/src/main/java/org/apache/tsfile/write/UnSupportedDataTypeException.java">
+</file>
+</checkstyle>
