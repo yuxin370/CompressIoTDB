@@ -6,6 +6,11 @@ CompressIoTDB integrates seamlessly with the native database system, Apache IoTD
 
 # Get Started
 
+## Step 0: Environment Setup
+Before installation, ensure that the device has a JDK version 1.8 or higher installed, and the `JAVA_HOME` environment variable is properly configured.
+
+Set the maximum number of open files to 65,535.
+
 ## Step 1: Download CompressIoTDB Repository
 To get started, install CompressIoTDB on either a server or a personal computer. 
 
