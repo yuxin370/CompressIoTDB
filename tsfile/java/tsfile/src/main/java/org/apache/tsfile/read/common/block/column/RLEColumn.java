@@ -49,7 +49,7 @@ public class RLEColumn implements Column {
   private final int[] patternOffsetIndex;
   // Marking the latest read column index, which can effectively save traversal time when data is
   // continuously read.
-  private int curIndex;
+  private int hintIndex;
 
   public RLEColumn(int positionCount, Column[] values, int[] patternOffsetIndex) {
     this(0, positionCount, values, patternOffsetIndex, 0);
@@ -60,7 +60,11 @@ public class RLEColumn implements Column {
   }
 
   RLEColumn(
-      int arrayOffset, int positionCount, Column[] values, int[] patternOffsetIndex, int curIndex) {
+      int arrayOffset,
+      int positionCount,
+      Column[] values,
+      int[] patternOffsetIndex,
+      int hintIndex) {
     requireNonNull(values, "values is null");
     requireNonNull(patternOffsetIndex, "patternOffsetIndex is null");
 
@@ -80,7 +84,7 @@ public class RLEColumn implements Column {
     }
     this.values = values;
     this.patternOffsetIndex = patternOffsetIndex;
-    this.curIndex = curIndex;
+    this.hintIndex = hintIndex;
   }
 
   private int getCurIndex(int position) {
@@ -92,34 +96,34 @@ public class RLEColumn implements Column {
               + (arrayOffset + positionCount - 1));
     } else if (position == arrayOffset + positionCount) {
       int index;
-      for (index = curIndex;
+      for (index = hintIndex;
           index < patternOffsetIndex.length && patternOffsetIndex[index] == 0;
           index++) ;
-      curIndex = index - 1;
-      return curIndex;
+      hintIndex = index - 1;
+      return hintIndex;
     }
     int index;
-    if (position >= patternOffsetIndex[curIndex]) {
-      /** check if curIndex hit */
-      if (position < patternOffsetIndex[curIndex + 1]) {
+    if (position >= patternOffsetIndex[hintIndex]) {
+      /** check if hintIndex hit */
+      if (position < patternOffsetIndex[hintIndex + 1]) {
         /** hit */
-        return curIndex;
+        return hintIndex;
       } else {
-        /** miss, traverse from curIndex + 1 and update curIndex */
-        for (index = curIndex + 1;
+        /** miss, traverse from hintIndex + 1 and update hintIndex */
+        for (index = hintIndex + 1;
             index < values.length && position >= patternOffsetIndex[index];
             index++) ;
-        curIndex = index - 1;
-        return curIndex;
+        hintIndex = index - 1;
+        return hintIndex;
       }
     }
 
-    /** miss, traverse from scratch and reset curIndex */
+    /** miss, traverse from scratch and reset hintIndex */
     for (index = 0;
         index < patternOffsetIndex.length && position >= patternOffsetIndex[index];
         index++) ;
-    curIndex = index - 1;
-    return curIndex;
+    hintIndex = index - 1;
+    return hintIndex;
   }
 
   @Override
@@ -530,7 +534,8 @@ public class RLEColumn implements Column {
     patternOffsetIndex[startIndex] = 0;
     int[] patternOffsetIndexTmp = Arrays.copyOf(patternOffsetIndex, patternOffsetIndex.length);
     for (int i = startIndex + 1, j = endIndex; i <= endIndex; i++, j--) {
-      patternOffsetIndex[i] = patternOffsetIndex[i - 1] + (patternOffsetIndexTmp[j+1] - patternOffsetIndexTmp[j]);
+      patternOffsetIndex[i] =
+          patternOffsetIndex[i - 1] + (patternOffsetIndexTmp[j + 1] - patternOffsetIndexTmp[j]);
     }
   }
 

@@ -14,7 +14,7 @@ Set the maximum number of open files to 65,535.
 ## Step 1: Download CompressIoTDB Repository
 To get started, install CompressIoTDB on either a server or a personal computer. 
 
-Download the repository from the anonymized Repository:
+Download the repository from the anonymized repository:
  
  ```shell
  https://anonymous.4open.science/r/CompressIoTDB-EEE8
@@ -47,7 +47,7 @@ Start CompressIoTDB server and client.
 > ./sbin/start-cli.sh -h 127.0.0.1 -p 6667 -u root -pw root
 ```
 The command line cli is interactive, so you should see the welcome logo and statements if everything is ready:
-```
+```plain
 ---------------------
 Starting IoTDB Cli
 ---------------------

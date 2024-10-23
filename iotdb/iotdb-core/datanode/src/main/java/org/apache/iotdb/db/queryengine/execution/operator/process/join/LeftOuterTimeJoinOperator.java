@@ -32,16 +32,22 @@ import org.apache.tsfile.common.conf.TSFileDescriptor;
 import org.apache.tsfile.enums.TSDataType;
 import org.apache.tsfile.read.common.block.TsBlock;
 import org.apache.tsfile.read.common.block.TsBlockBuilder;
+import org.apache.tsfile.read.common.block.column.RLEColumn;
+import org.apache.tsfile.read.common.block.column.RLEColumnBuilder;
 import org.apache.tsfile.read.common.block.column.TimeColumn;
 import org.apache.tsfile.read.common.block.column.TimeColumnBuilder;
+import org.apache.tsfile.utils.Pair;
 import org.apache.tsfile.utils.RamUsageEstimator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.util.concurrent.Futures.successfulAsList;
+import static org.apache.tsfile.read.common.block.TsBlockUtil.contructColumnBuilders;
 
 public class LeftOuterTimeJoinOperator implements ProcessOperator {
 
@@ -111,14 +117,46 @@ public class LeftOuterTimeJoinOperator implements ProcessOperator {
     }
   }
 
+  private void updateResultBuilderType() {
+    // update ResultBuilder for CompressedColumn Type (eg. RLE)
+    // if this function involked, leftTsBlock must not be null
+    // rightTsBlock may be null
+    for (int i = 0; i < leftColumnCount; i++) {
+      Column leftColumn = leftTsBlock.getColumn(i);
+      ColumnBuilder columnBuilder = resultBuilder.getColumnBuilder(i);
+      if (leftColumn instanceof RLEColumn && !(columnBuilder instanceof RLEColumnBuilder)) {
+        resultBuilder.buildValueColumnBuilder(
+            i,
+            new RLEColumnBuilder(null, 1, columnBuilder.getDataType()),
+            columnBuilder.getDataType());
+      }
+    }
+
+    if (!rightFinished) {
+      for (int i = leftColumnCount; i < outputColumnCount; i++) {
+        Column rightColumn = rightTsBlock.getColumn(i - leftColumnCount);
+        ColumnBuilder columnBuilder = resultBuilder.getColumnBuilder(i);
+        if (rightColumn instanceof RLEColumn && !(columnBuilder instanceof RLEColumnBuilder)) {
+          resultBuilder.buildValueColumnBuilder(
+              i,
+              new RLEColumnBuilder(null, 1, columnBuilder.getDataType()),
+              columnBuilder.getDataType());
+        }
+      }
+    }
+  }
+
   @Override
   public TsBlock next() throws Exception {
     // start stopwatch
+    LOGGER.info("[tyx] using LeftOuterTimeJoinOperator");
     long maxRuntime = operatorContext.getMaxRunTime().roundTo(TimeUnit.NANOSECONDS);
     long start = System.nanoTime();
     if (!prepareInput(start, maxRuntime)) {
       return null;
     }
+
+    updateResultBuilderType();
 
     // still have time
     if (System.nanoTime() - start < maxRuntime) {
@@ -144,29 +182,124 @@ public class LeftOuterTimeJoinOperator implements ProcessOperator {
         int leftRowSize = leftTsBlock.getPositionCount();
         TimeColumnBuilder timeColumnBuilder = resultBuilder.getTimeColumnBuilder();
 
+        int leftStartIndex = leftIndex;
+        List<Integer> selectedRowIndexArray = new ArrayList<>();
+
         while (comparator.canContinueInclusive(time, currentEndTime)
             && !resultBuilder.isFull()
-            && appendRightTableRow(time)) {
+            && appendRightTableRow(time, selectedRowIndexArray)) {
           timeColumnBuilder.writeLong(time);
           resultBuilder.declarePosition();
           // deal with leftTsBlock
-          appendLeftTableRow();
+          // appendLeftTableRow();
+          leftIndex++;
 
           if (leftIndex < leftRowSize) {
             // update next row's time
             time = leftTsBlock.getTimeByIndex(leftIndex);
           } else { // all the leftTsBlock is consumed up
             // clean leftTsBlock
+            appendLeftTableRLEColumns(leftStartIndex, leftRowSize);
             leftTsBlock = null;
             leftIndex = 0;
             break;
           }
+        }
+        appendRightTableRLEColumns(selectedRowIndexArray);
+        if (leftIndex != 0) {
+          appendLeftTableRLEColumns(leftStartIndex, leftIndex);
         }
       }
     }
     TsBlock res = resultBuilder.build();
     resultBuilder.reset();
     return res;
+  }
+
+  private void appendRightTableRLEColumns(List<Integer> selectedRowIndex) {
+    for (int i = leftColumnCount; i < outputColumnCount; i++) {
+      Column column = rightTsBlock.getColumn(i - leftColumnCount);
+      ColumnBuilder columnBuilder = resultBuilder.getColumnBuilder(i);
+      if ((columnBuilder instanceof RLEColumnBuilder && column instanceof RLEColumn)) {
+        Pair<Column[], int[]> patterns = ((RLEColumn) column).getVisibleColumns();
+        Column[] columns = patterns.getLeft();
+        int[] logicPositionCount = patterns.getRight();
+        int startIndex = 0, LastIndex = 0;
+        int traverseIndex = 0, fromIndex = 0, rowIndexCount = selectedRowIndex.size();
+        for (int idx = 0, length = columns.length;
+            idx < length && traverseIndex < rowIndexCount;
+            idx++) {
+          if (columns[idx].getPositionCount() == 1) {
+            // is RLE-Mode just update count
+            fromIndex = traverseIndex;
+            LastIndex = startIndex + logicPositionCount[idx];
+            while (traverseIndex < rowIndexCount
+                && selectedRowIndex.get(traverseIndex) < LastIndex) {
+              if (selectedRowIndex.get(traverseIndex) == -1) {
+                traverseIndex++;
+                if (traverseIndex > fromIndex) {
+                  ((RLEColumnBuilder) columnBuilder)
+                      .writeRLEPattern(columns[idx], traverseIndex - fromIndex);
+                }
+                columnBuilder.appendNull();
+                fromIndex = traverseIndex;
+              } else {
+                traverseIndex++;
+              }
+            }
+            if (traverseIndex > fromIndex) {
+              ((RLEColumnBuilder) columnBuilder)
+                  .writeRLEPattern(columns[idx], traverseIndex - fromIndex);
+            }
+            startIndex = LastIndex;
+          } else {
+            // is Bit-packed Mode, reconstruct value
+            fromIndex = traverseIndex;
+            LastIndex = startIndex + logicPositionCount[idx];
+            ColumnBuilder tpColumnBuilder =
+                contructColumnBuilders(Collections.singletonList(columnBuilder.getDataType()))[0];
+            while (traverseIndex < rowIndexCount
+                && selectedRowIndex.get(traverseIndex) < LastIndex) {
+              if (selectedRowIndex.get(traverseIndex) == -1
+                  || columns[idx].isNull(selectedRowIndex.get(traverseIndex) - startIndex)) {
+                tpColumnBuilder.appendNull();
+              } else {
+                tpColumnBuilder.write(
+                    columns[idx], selectedRowIndex.get(traverseIndex) - startIndex);
+              }
+              traverseIndex++;
+            }
+            ((RLEColumnBuilder) columnBuilder)
+                .writeRLEPattern(tpColumnBuilder.build(), traverseIndex - fromIndex);
+            startIndex = LastIndex;
+          }
+        }
+      }
+    }
+  }
+
+  private void appendLeftTableRLEColumns(int leftStartIndex, int leftRowSize) {
+    for (int i = 0; i < leftColumnCount; i++) {
+      ColumnBuilder columnBuilder = resultBuilder.getColumnBuilder(i);
+      Column valueColumn = leftTsBlock.getColumn(i);
+      if (columnBuilder instanceof RLEColumnBuilder && valueColumn instanceof RLEColumn) {
+        RLEColumn targetValueColumn =
+            (RLEColumn) valueColumn.getRegion(leftStartIndex, leftRowSize - leftStartIndex);
+        Pair<Column[], int[]> patterns = targetValueColumn.getVisibleColumns();
+        Column[] columns = patterns.getLeft();
+        int[] logicPositionCounts = patterns.getRight();
+        for (int j = 0; j < columns.length; j++) {
+          ((RLEColumnBuilder) columnBuilder).writeRLEPattern(columns[j], logicPositionCounts[j]);
+        }
+      } else {
+        for (int idx = leftStartIndex; idx < leftRowSize; idx++)
+          if (valueColumn.isNull(idx)) {
+            columnBuilder.appendNull();
+          } else {
+            columnBuilder.write(valueColumn, idx);
+          }
+      }
+    }
   }
 
   private boolean prepareInput(long start, long maxRuntime) throws Exception {
@@ -198,10 +331,12 @@ public class LeftOuterTimeJoinOperator implements ProcessOperator {
     for (int i = 0; i < leftColumnCount; i++) {
       Column leftColumn = leftTsBlock.getColumn(i);
       ColumnBuilder columnBuilder = resultBuilder.getColumnBuilder(i);
-      if (leftColumn.isNull(leftIndex)) {
-        columnBuilder.appendNull();
-      } else {
-        columnBuilder.write(leftColumn, leftIndex);
+      if (!(columnBuilder instanceof RLEColumnBuilder)) {
+        if (leftColumn.isNull(leftIndex)) {
+          columnBuilder.appendNull();
+        } else {
+          columnBuilder.write(leftColumn, leftIndex);
+        }
       }
     }
     leftIndex++;
@@ -215,7 +350,7 @@ public class LeftOuterTimeJoinOperator implements ProcessOperator {
    *     rightTsBlock larger than or equals to current time false if we cannot decide whether there
    *     exist corresponding time in right table until rightTsBlock is consumed up
    */
-  private boolean appendRightTableRow(long time) {
+  private boolean appendRightTableRow(long time, List<Integer> selectedRowIndexArray) {
     int rowCount = rightTsBlock.getPositionCount();
 
     while (rightIndex < rowCount
@@ -235,19 +370,26 @@ public class LeftOuterTimeJoinOperator implements ProcessOperator {
       for (int i = leftColumnCount; i < outputColumnCount; i++) {
         Column rightColumn = rightTsBlock.getColumn(i - leftColumnCount);
         ColumnBuilder columnBuilder = resultBuilder.getColumnBuilder(i);
-        if (rightColumn.isNull(rightIndex)) {
-          columnBuilder.appendNull();
-        } else {
-          columnBuilder.write(rightColumn, rightIndex);
+        if (!(columnBuilder instanceof RLEColumnBuilder)) {
+          if (rightColumn.isNull(rightIndex)) {
+            columnBuilder.appendNull();
+          } else {
+            columnBuilder.write(rightColumn, rightIndex);
+          }
         }
       }
       // update right Index
+      selectedRowIndexArray.add(rightIndex);
       rightIndex++;
     } else {
       // right table doesn't have this time, just append null for right table
       for (int i = leftColumnCount; i < outputColumnCount; i++) {
-        resultBuilder.getColumnBuilder(i).appendNull();
+        ColumnBuilder columnBuilder = resultBuilder.getColumnBuilder(i);
+        if (!(columnBuilder instanceof RLEColumnBuilder)) {
+          columnBuilder.appendNull();
+        }
       }
+      selectedRowIndexArray.add(-1);
     }
     return true;
   }
@@ -278,19 +420,29 @@ public class LeftOuterTimeJoinOperator implements ProcessOperator {
     for (int i = 0; i < leftColumnCount; i++) {
       ColumnBuilder columnBuilder = resultBuilder.getColumnBuilder(i);
       Column valueColumn = leftTsBlock.getColumn(i);
-
-      if (valueColumn.mayHaveNull()) {
-        for (int rowIndex = leftIndex; rowIndex < rowSize; rowIndex++) {
-          if (valueColumn.isNull(rowIndex)) {
-            columnBuilder.appendNull();
-          } else {
-            columnBuilder.write(valueColumn, rowIndex);
-          }
+      if (columnBuilder instanceof RLEColumnBuilder && valueColumn instanceof RLEColumn) {
+        RLEColumn targetValueColumn =
+            (RLEColumn) valueColumn.getRegion(leftIndex, rowSize - leftIndex);
+        Pair<Column[], int[]> patterns = targetValueColumn.getVisibleColumns();
+        Column[] columns = patterns.getLeft();
+        int[] logicPositionCounts = patterns.getRight();
+        for (int j = 0; j < columns.length; j++) {
+          ((RLEColumnBuilder) columnBuilder).writeRLEPattern(columns[j], logicPositionCounts[j]);
         }
       } else {
-        // no null in current column, no need to do isNull judgement for each row in for-loop
-        for (int rowIndex = leftIndex; rowIndex < rowSize; rowIndex++) {
-          columnBuilder.write(valueColumn, rowIndex);
+        if (valueColumn.mayHaveNull()) {
+          for (int rowIndex = leftIndex; rowIndex < rowSize; rowIndex++) {
+            if (valueColumn.isNull(rowIndex)) {
+              columnBuilder.appendNull();
+            } else {
+              columnBuilder.write(valueColumn, rowIndex);
+            }
+          }
+        } else {
+          // no null in current column, no need to do isNull judgement for each row in for-loop
+          for (int rowIndex = leftIndex; rowIndex < rowSize; rowIndex++) {
+            columnBuilder.write(valueColumn, rowIndex);
+          }
         }
       }
     }
@@ -300,7 +452,16 @@ public class LeftOuterTimeJoinOperator implements ProcessOperator {
     int nullCount = rowSize - leftIndex;
     for (int i = leftColumnCount; i < outputColumnCount; i++) {
       ColumnBuilder columnBuilder = resultBuilder.getColumnBuilder(i);
-      columnBuilder.appendNull(nullCount);
+      if (columnBuilder instanceof RLEColumnBuilder) {
+        ((RLEColumnBuilder) columnBuilder)
+            .writeRLEPattern(
+                contructColumnBuilders(Collections.singletonList(columnBuilder.getDataType()))[0]
+                    .appendNull()
+                    .build(),
+                nullCount);
+      } else {
+        columnBuilder.appendNull(nullCount);
+      }
     }
   }
 

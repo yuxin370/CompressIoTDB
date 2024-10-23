@@ -33,18 +33,23 @@ import org.apache.tsfile.common.conf.TSFileDescriptor;
 import org.apache.tsfile.enums.TSDataType;
 import org.apache.tsfile.read.common.block.TsBlock;
 import org.apache.tsfile.read.common.block.TsBlockBuilder;
+import org.apache.tsfile.read.common.block.column.RLEColumn;
+import org.apache.tsfile.read.common.block.column.RLEColumnBuilder;
 import org.apache.tsfile.read.common.block.column.TimeColumnBuilder;
+import org.apache.tsfile.utils.Pair;
 import org.apache.tsfile.utils.RamUsageEstimator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.util.concurrent.Futures.successfulAsList;
+import static org.apache.tsfile.read.common.block.TsBlockUtil.contructColumnBuilders;
 
 public class InnerTimeJoinOperator implements ProcessOperator {
   private static final Logger LOGGER = LoggerFactory.getLogger(InnerTimeJoinOperator.class);
@@ -124,14 +129,35 @@ public class InnerTimeJoinOperator implements ProcessOperator {
         : successfulAsList(listenableFutures);
   }
 
+  private void updateResultBuilderType() {
+    // update ResultBuilder for CompressedColumn Type (eg. RLE)
+    for (int j = 0; j < inputOperatorsCount; j++) {
+      TsBlock tsBlock = inputTsBlocks[j];
+      for (int i = 0, size = inputTsBlocks[j].getValueColumnCount(); i < size; i++) {
+        int resultBuilderIndex = outputColumnMap.get(new InputLocation(j, i));
+        ColumnBuilder columnBuilder = resultBuilder.getColumnBuilder(resultBuilderIndex);
+        Column column = tsBlock.getColumn(i);
+        if (column instanceof RLEColumn && !(columnBuilder instanceof RLEColumnBuilder)) {
+          resultBuilder.buildValueColumnBuilder(
+              resultBuilderIndex,
+              new RLEColumnBuilder(null, 1, columnBuilder.getDataType()),
+              columnBuilder.getDataType());
+        }
+      }
+    }
+  }
+
   @Override
   public TsBlock next() throws Exception {
+    LOGGER.info("[tyx] using InnerTimeJoinOperator");
     // start stopwatch
     long maxRuntime = operatorContext.getMaxRunTime().roundTo(TimeUnit.NANOSECONDS);
     long start = System.nanoTime();
     if (!prepareInput(start, maxRuntime)) {
       return null;
     }
+
+    updateResultBuilderType();
 
     // still have time
     if (System.nanoTime() - start < maxRuntime) {
@@ -270,17 +296,57 @@ public class InnerTimeJoinOperator implements ProcessOperator {
       ColumnBuilder columnBuilder =
           resultBuilder.getColumnBuilder(outputColumnMap.get(new InputLocation(childIndex, i)));
       Column column = tsBlock.getColumn(i);
-      if (column.mayHaveNull()) {
-        for (int rowIndex : selectedRowIndex) {
-          if (column.isNull(rowIndex)) {
-            columnBuilder.appendNull();
+      if (column instanceof RLEColumn && columnBuilder instanceof RLEColumnBuilder) {
+        Pair<Column[], int[]> patterns = ((RLEColumn) column).getVisibleColumns();
+        Column[] columns = patterns.getLeft();
+        int[] logicPositionCount = patterns.getRight();
+        int startIndex = 0, LastIndex = 0;
+        int traverseIndex = 0, fromIndex = 0, rowIndexCount = selectedRowIndex.length;
+        for (int idx = 0, length = columns.length;
+            idx < length && traverseIndex < rowIndexCount;
+            idx++) {
+          if (columns[idx].getPositionCount() == 1) {
+            // is RLE-Mode just update count
+            fromIndex = traverseIndex;
+            LastIndex = startIndex + logicPositionCount[idx];
+            while (traverseIndex < rowIndexCount && selectedRowIndex[traverseIndex] < LastIndex) {
+              traverseIndex++;
+            }
+            ((RLEColumnBuilder) columnBuilder)
+                .writeRLEPattern(columns[idx], traverseIndex - fromIndex);
+            startIndex = LastIndex;
           } else {
-            columnBuilder.write(column, rowIndex);
+            // is Bit-packed Mode, reconstruct value
+            fromIndex = traverseIndex;
+            LastIndex = startIndex + logicPositionCount[idx];
+            ColumnBuilder tpColumnBuilder =
+                contructColumnBuilders(Collections.singletonList(columnBuilder.getDataType()))[0];
+            while (traverseIndex < rowIndexCount && selectedRowIndex[traverseIndex] < LastIndex) {
+              if (columns[idx].isNull(selectedRowIndex[traverseIndex] - startIndex)) {
+                tpColumnBuilder.appendNull();
+              } else {
+                tpColumnBuilder.write(columns[idx], selectedRowIndex[traverseIndex] - startIndex);
+              }
+              traverseIndex++;
+            }
+            ((RLEColumnBuilder) columnBuilder)
+                .writeRLEPattern(tpColumnBuilder.build(), traverseIndex - fromIndex);
+            startIndex = LastIndex;
           }
         }
       } else {
-        for (int rowIndex : selectedRowIndex) {
-          columnBuilder.write(column, rowIndex);
+        if (column.mayHaveNull()) {
+          for (int rowIndex : selectedRowIndex) {
+            if (column.isNull(rowIndex)) {
+              columnBuilder.appendNull();
+            } else {
+              columnBuilder.write(column, rowIndex);
+            }
+          }
+        } else {
+          for (int rowIndex : selectedRowIndex) {
+            columnBuilder.write(column, rowIndex);
+          }
         }
       }
     }

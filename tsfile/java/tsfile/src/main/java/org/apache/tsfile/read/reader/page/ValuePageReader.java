@@ -494,8 +494,6 @@ public class ValuePageReader {
         int nextDoNothingIndex = doNothingSkipCount == 0 ? -1 : doNothingArray.get(doNothingIdx);
         isrle = valueColumn.getPositionCount() == 1;
         Object value = null;
-        // LOGGER.info(
-        //     "[tyx] nullCount = " + nullCount + " doNothingSkipCount = " + doNothingSkipCount);
         if (isrle) {
           value = valueColumn.getObject(0);
         }
@@ -515,14 +513,6 @@ public class ValuePageReader {
                 nextDoNothingIndex = doNothingArray.get(doNothingIdx);
               }
             } else {
-              // LOGGER.info(
-              //     "[tyx] write a value at "
-              //         + patternIdx
-              //         + " total(writePatternLength) = "
-              //         + patternLength
-              //         + "("
-              //         + writePatternLength
-              //         + ")");
               valueColumnBuilder.writeObject(isrle ? value : valueColumn.getObject(patternIdx));
               patternIdx++;
             }
@@ -726,7 +716,6 @@ public class ValuePageReader {
         int nullidx = 0;
         int nextNullIndex = 0;
         if (isrle) {
-          // LOGGER.info("[tyx] in with null rle ." + writePatternLength);
           int curRun = 1;
           int curNullAcc = 1;
           int lastNullIndex = -1;
@@ -737,13 +726,10 @@ public class ValuePageReader {
           while (nullidx < nullCount) {
             nextNullIndex = nullIndexArray.get(nullidx);
             curRun = nextNullIndex - lastNullIndex - 1;
-            // LOGGER.info("[tyx] curRun = " + curRun + " null index = " + nextNullIndex);
             if (curRun != 0) {
               if (lastNullIndex != -1) {
-                // LOGGER.info("[tyx]  ------- write Nulls " + curNullAcc);
                 valueBuilder.writeRLEPattern(nullColumnBuilder.build(), curNullAcc);
               }
-              // LOGGER.info("[tyx]  ------- write RLEs " + curRun);
               valueBuilder.writeRLEPattern(valueColumnBuilder.build(), curRun);
               curNullAcc = 1;
             } else if (lastNullIndex != -1) {
@@ -752,12 +738,10 @@ public class ValuePageReader {
             nullidx += 1;
             lastNullIndex = nextNullIndex;
           }
-          // LOGGER.info("[tyx]  ------- write Nulls " + curNullAcc);
           valueBuilder.writeRLEPattern(nullColumnBuilder.build(), curNullAcc);
           // consume rest values.
           curRun = writePatternLength - lastNullIndex - 1;
           if (curRun != 0) {
-            // LOGGER.info("[tyx]  ------- write RLEs " + curRun);
             valueBuilder.writeRLEPattern(valueColumnBuilder.build(), curRun);
           }
         } else {
