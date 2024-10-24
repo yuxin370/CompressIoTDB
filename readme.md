@@ -28,7 +28,7 @@ CompressIoTDB is built on Apache IoTDB seamlessly. You can build CompressIoTDB w
 # install tsfile package with offline mode
 > cd your/path/to/CompressIoTDB/tsfile 
 > mvn clean install -o -P with-java -DskipTests
-# package iotdb
+# build iotdb
 > cd your/path/to/CompressIoTDB/iotdb
 > mvn clean package -o -pl distribution -am -DskipTests
 ```
