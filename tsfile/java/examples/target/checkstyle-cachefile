@@ -1,6 +1,6 @@
-#Tue Oct 22 22:35:12 CST 2024
-/home/tangyuxin/iotdbWorkSpace_update/tsfile/java/examples/src/main/java/org/apache/tsfile/DataGenerator.java=1729607166935
-/home/tangyuxin/iotdbWorkSpace_update/tsfile/java/examples/src/main/java/org/apache/tsfile/TsFileSequenceRead.java=1729607166939
-configuration*?=B7E020FD72085F83ABFEDFA6B51CB4058EB51883
-/home/tangyuxin/iotdbWorkSpace_update/tsfile/java/examples/src/main/java/org/apache/tsfile/TsFileWriteAlignedWithTablet.java=1729607166939
-/home/tangyuxin/iotdbWorkSpace_update/tsfile/java/examples/src/main/java/org/apache/tsfile/TsFileRead.java=1729607166939
+#Fri Oct 25 15:12:26 CST 2024
+/home/fanfan/CompressIoTDB/tsfile/java/examples/src/main/java/org/apache/tsfile/DataGenerator.java=1729660624952
+/home/fanfan/CompressIoTDB/tsfile/java/examples/src/main/java/org/apache/tsfile/TsFileRead.java=1729660625131
+/home/fanfan/CompressIoTDB/tsfile/java/examples/src/main/java/org/apache/tsfile/TsFileSequenceRead.java=1729660625000
+/home/fanfan/CompressIoTDB/tsfile/java/examples/src/main/java/org/apache/tsfile/TsFileWriteAlignedWithTablet.java=1729660625025
+configuration*?=7954AB96C69A6A3F1F5C7300D92C18A94473C56A

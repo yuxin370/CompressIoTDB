@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Build-Jdk-Spec: 11
+Build-Jdk-Spec: 20
 Bundle-Description: A columnar file format designed for time-series data
 Bundle-DocURL: https://www.apache.org/
 Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt

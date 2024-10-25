@@ -1,0 +1,416 @@
+Using configuration file: /home/tangyuxin/iotdb-1.3/iot-benchmark-iotdb-1.3_p/conf/config.properties
+Using default memory configuration to startup.
+2024-09-21 00:02:28,440 INFO  cn.edu.tsinghua.iot.benchmark.App:41 - Initial Heap Size: 1061158912bytes, Max Heap Size: 16835936256bytes. 
+2024-09-21 00:02:28,463 WARN  cn.edu.tsinghua.iot.benchmark.conf.ConfigDescriptor:664 - Benchmark is doing query, no need to delete data. 
+2024-09-21 00:02:28,464 WARN  cn.edu.tsinghua.iot.benchmark.conf.ConfigDescriptor:668 - Benchmark is doing query, no need to create schema. 
+2024-09-21 00:02:28,557 INFO  cn.edu.tsinghua.iot.benchmark.conf.Config:528 - Init SensorTypes: BOOLEAN:INT32:INT64:FLOAT:DOUBLE:TEXT=0:0:0:1:0:0 
+2024-09-21 00:02:29,716 INFO  cn.edu.tsinghua.iot.benchmark.tsdb.DBWrapper:537 - Registering schema... 
+2024-09-21 00:02:29,716 INFO  cn.edu.tsinghua.iot.benchmark.tsdb.DBWrapper:537 - Registering schema... 
+2024-09-21 00:02:30,718 INFO  cn.edu.tsinghua.iot.benchmark.mode.BaseMode:157 - Registering schema successful! 
+2024-09-21 00:02:30,728 INFO  cn.edu.tsinghua.iot.benchmark.workload.GenerateDataWorkLoad:143 - Start Generating WorkLoad 
+2024-09-21 00:02:30,729 INFO  cn.edu.tsinghua.iot.benchmark.workload.GenerateDataWorkLoad:196 - According to OPERATION_PROPORTION, there is no need to write 
+2024-09-21 00:02:30,729 INFO  cn.edu.tsinghua.iot.benchmark.workload.GenerateDataWorkLoad:198 - Finish Generating WorkLoad 
+2024-09-21 00:02:31,734 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 1.00% workload is done. 
+2024-09-21 00:02:31,734 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 1.00% workload is done. 
+2024-09-21 00:04:01,733 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 10.00% workload is done. 
+2024-09-21 00:04:01,733 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 13.00% workload is done. 
+2024-09-21 00:05:31,733 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 25.00% workload is done. 
+2024-09-21 00:05:31,733 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 28.00% workload is done. 
+2024-09-21 00:07:01,733 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 38.00% workload is done. 
+2024-09-21 00:07:01,733 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 42.00% workload is done. 
+2024-09-21 00:08:31,733 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 53.00% workload is done. 
+2024-09-21 00:08:31,733 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 55.00% workload is done. 
+2024-09-21 00:10:01,733 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 64.00% workload is done. 
+2024-09-21 00:10:01,733 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 65.00% workload is done. 
+2024-09-21 00:11:31,733 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 77.00% workload is done. 
+2024-09-21 00:11:31,733 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 75.00% workload is done. 
+2024-09-21 00:13:01,733 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 87.00% workload is done. 
+2024-09-21 00:13:01,733 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 91.00% workload is done. 
+2024-09-21 00:14:31,733 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 99.00% workload is done. 
+2024-09-21 00:14:47,760 INFO  cn.edu.tsinghua.iot.benchmark.mode.BaseMode:169 - All dataClients finished. 
+----------------------Main Configurations----------------------
+########### Test Mode ###########
+BENCHMARK_WORK_MODE=testWithDefaultPath
+########### Database Connection Information ###########
+DOUBLE_WRITE=false
+DBConfig=
+  DB_SWITCH=IoTDB-130-SESSION_BY_TABLET
+  HOST=[127.0.0.1]
+########### Data Mode ###########
+GROUP_NUMBER=1
+DEVICE_NUMBER=1
+REAL_INSERT_RATE=1.0
+SENSOR_NUMBER=5
+IS_SENSOR_TS_ALIGNMENT=true
+IS_OUT_OF_ORDER=false
+OUT_OF_ORDER_RATIO=0.5
+########### Data Amount ###########
+OPERATION_PROPORTION=0:0:0:1:1:1:1:0:0:0:0:1
+CLIENT_NUMBER=2
+LOOP=100
+BATCH_SIZE_PER_WRITE=200000
+DEVICE_NUM_PER_WRITE=1
+START_TIME=2001-09-09T09:00:00+08:00
+POINT_STEP=2500000000
+OP_MIN_INTERVAL=0
+OP_MIN_INTERVAL_RANDOM=false
+INSERT_DATATYPE_PROPORTION=0:0:0:1:0:0
+ENCODINGS=RLE/RLE/RLE/RLE/RLE/DICTIONARY
+COMPRESSOR=LZ4
+########### Query Param ###########
+QUERY_DEVICE_NUM=1
+QUERY_SENSOR_NUM=5
+QUERY_INTERVAL=25000000000
+STEP_SIZE=1
+IS_RECENT_QUERY=false
+########### Other Param ###########
+IS_DELETE_DATA=false
+CREATE_SCHEMA=false
+BENCHMARK_CLUSTER=false
+VECTOR=true
+
+---------------------------------------------------------------
+main measurements:
+Create schema cost 0.00 second
+Test elapsed time (not include schema creation): 737.03 second
+----------------------------------------------------------Result Matrix----------------------------------------------------------
+Operation                okOperation              okPoint                  failOperation            failPoint                throughput(point/s)      
+INGESTION                0                        0                        0                        0                        0.00                     
+PRECISE_POINT            0                        0                        0                        0                        0.00                     
+TIME_RANGE               0                        0                        0                        0                        0.00                     
+VALUE_RANGE              42                       3294872000               0                        0                        4470474.42               
+AGG_RANGE                35                       175                      0                        0                        0.24                     
+AGG_VALUE                37                       185                      0                        0                        0.25                     
+AGG_RANGE_VALUE          39                       195                      0                        0                        0.26                     
+GROUP_BY                 0                        0                        0                        0                        0.00                     
+LATEST_POINT             0                        0                        0                        0                        0.00                     
+RANGE_QUERY_DESC         0                        0                        0                        0                        0.00                     
+VALUE_RANGE_QUERY_DESC   0                        0                        0                        0                        0.00                     
+EXP_VALUE                47                       14748600000              0                        0                        20010865.07              
+---------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------Latency (ms) Matrix--------------------------------------------------------------------------
+Operation                AVG         MIN         P10         P25         MEDIAN      P75         P90         P95         P99         P999        MAX         SLOWEST_THREAD
+INGESTION                0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+PRECISE_POINT            0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+TIME_RANGE               0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+VALUE_RANGE              2839.71     2784.58     2790.13     2802.41     2823.53     2875.70     2892.47     2902.71     2942.92     2942.76     2942.74     59794.20    
+AGG_RANGE                2643.94     2307.89     2341.39     2389.72     2732.87     2826.79     2851.31     2885.09     2974.14     2955.10     2952.99     52464.68    
+AGG_VALUE                12331.52    10612.79    10754.77    11588.95    12406.25    13246.03    13382.23    13546.61    13777.83    13724.01    13718.03    266220.14   
+AGG_RANGE_VALUE          3186.28     2714.17     2747.54     2898.26     3314.60     3352.57     3445.35     3807.84     3825.59     3825.25     3825.21     64429.83    
+GROUP_BY                 0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+LATEST_POINT             0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+RANGE_QUERY_DESC         0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+VALUE_RANGE_QUERY_DESC   0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+EXP_VALUE                13338.15    13101.61    13136.69    13183.47    13319.58    13459.96    13540.88    13595.03    13801.14    13758.26    13753.50    385557.29   
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Using configuration file: /home/tangyuxin/iotdb-1.3/iot-benchmark-iotdb-1.3_p/conf/config_p.properties
+Using default memory configuration to startup.
+2024-09-21 00:14:52,107 INFO  cn.edu.tsinghua.iot.benchmark.App:41 - Initial Heap Size: 1061158912bytes, Max Heap Size: 16835936256bytes. 
+2024-09-21 00:14:52,130 WARN  cn.edu.tsinghua.iot.benchmark.conf.ConfigDescriptor:664 - Benchmark is doing query, no need to delete data. 
+2024-09-21 00:14:52,130 WARN  cn.edu.tsinghua.iot.benchmark.conf.ConfigDescriptor:668 - Benchmark is doing query, no need to create schema. 
+2024-09-21 00:14:52,222 INFO  cn.edu.tsinghua.iot.benchmark.conf.Config:528 - Init SensorTypes: BOOLEAN:INT32:INT64:FLOAT:DOUBLE:TEXT=0:0:0:1:0:0 
+2024-09-21 00:14:53,359 INFO  cn.edu.tsinghua.iot.benchmark.tsdb.DBWrapper:537 - Registering schema... 
+2024-09-21 00:14:53,359 INFO  cn.edu.tsinghua.iot.benchmark.tsdb.DBWrapper:537 - Registering schema... 
+2024-09-21 00:14:54,361 INFO  cn.edu.tsinghua.iot.benchmark.mode.BaseMode:157 - Registering schema successful! 
+2024-09-21 00:14:54,369 INFO  cn.edu.tsinghua.iot.benchmark.workload.GenerateDataWorkLoad:143 - Start Generating WorkLoad 
+2024-09-21 00:14:54,370 INFO  cn.edu.tsinghua.iot.benchmark.workload.GenerateDataWorkLoad:196 - According to OPERATION_PROPORTION, there is no need to write 
+2024-09-21 00:14:54,370 INFO  cn.edu.tsinghua.iot.benchmark.workload.GenerateDataWorkLoad:198 - Finish Generating WorkLoad 
+2024-09-21 00:14:55,375 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 1.00% workload is done. 
+2024-09-21 00:14:55,375 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 1.00% workload is done. 
+2024-09-21 00:16:25,374 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 17.00% workload is done. 
+2024-09-21 00:16:25,374 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 18.00% workload is done. 
+2024-09-21 00:17:55,374 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 31.00% workload is done. 
+2024-09-21 00:17:55,374 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 37.00% workload is done. 
+2024-09-21 00:19:25,374 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 53.00% workload is done. 
+2024-09-21 00:19:25,374 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 55.00% workload is done. 
+2024-09-21 00:20:55,374 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 67.00% workload is done. 
+2024-09-21 00:20:55,374 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 68.00% workload is done. 
+2024-09-21 00:22:25,374 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 82.00% workload is done. 
+2024-09-21 00:22:25,374 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 87.00% workload is done. 
+2024-09-21 00:23:55,374 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 99.00% workload is done. 
+2024-09-21 00:24:09,423 INFO  cn.edu.tsinghua.iot.benchmark.mode.BaseMode:169 - All dataClients finished. 
+----------------------Main Configurations----------------------
+########### Test Mode ###########
+BENCHMARK_WORK_MODE=testWithDefaultPath
+########### Database Connection Information ###########
+DOUBLE_WRITE=false
+DBConfig=
+  DB_SWITCH=IoTDB-130-SESSION_BY_TABLET
+  HOST=[127.0.0.1]
+########### Data Mode ###########
+GROUP_NUMBER=1
+DEVICE_NUMBER=1
+REAL_INSERT_RATE=1.0
+SENSOR_NUMBER=5
+IS_SENSOR_TS_ALIGNMENT=true
+IS_OUT_OF_ORDER=false
+OUT_OF_ORDER_RATIO=0.5
+########### Data Amount ###########
+OPERATION_PROPORTION=0:0:0:1:1:1:1:0:0:0:0:1
+CLIENT_NUMBER=2
+LOOP=100
+BATCH_SIZE_PER_WRITE=200000
+DEVICE_NUM_PER_WRITE=1
+START_TIME=2001-09-09T09:00:00+08:00
+POINT_STEP=2500000000
+OP_MIN_INTERVAL=0
+OP_MIN_INTERVAL_RANDOM=false
+INSERT_DATATYPE_PROPORTION=0:0:0:1:0:0
+ENCODINGS=RLE/RLE/RLE/RLE/RLE/DICTIONARY
+COMPRESSOR=LZ4
+########### Query Param ###########
+QUERY_DEVICE_NUM=1
+QUERY_SENSOR_NUM=5
+QUERY_INTERVAL=25000000000
+STEP_SIZE=1
+IS_RECENT_QUERY=false
+########### Other Param ###########
+IS_DELETE_DATA=false
+CREATE_SCHEMA=false
+BENCHMARK_CLUSTER=false
+VECTOR=true
+
+---------------------------------------------------------------
+main measurements:
+Create schema cost 0.00 second
+Test elapsed time (not include schema creation): 555.05 second
+----------------------------------------------------------Result Matrix----------------------------------------------------------
+Operation                okOperation              okPoint                  failOperation            failPoint                throughput(point/s)      
+INGESTION                0                        0                        0                        0                        0.00                     
+PRECISE_POINT            0                        0                        0                        0                        0.00                     
+TIME_RANGE               0                        0                        0                        0                        0.00                     
+VALUE_RANGE              42                       3294872000               0                        0                        5936154.14               
+AGG_RANGE                35                       175                      0                        0                        0.32                     
+AGG_VALUE                37                       185                      0                        0                        0.33                     
+AGG_RANGE_VALUE          39                       195                      0                        0                        0.35                     
+GROUP_BY                 0                        0                        0                        0                        0.00                     
+LATEST_POINT             0                        0                        0                        0                        0.00                     
+RANGE_QUERY_DESC         0                        0                        0                        0                        0.00                     
+VALUE_RANGE_QUERY_DESC   0                        0                        0                        0                        0.00                     
+EXP_VALUE                47                       14748600000              0                        0                        26571582.44              
+---------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------Latency (ms) Matrix--------------------------------------------------------------------------
+Operation                AVG         MIN         P10         P25         MEDIAN      P75         P90         P95         P99         P999        MAX         SLOWEST_THREAD
+INGESTION                0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+PRECISE_POINT            0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+TIME_RANGE               0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+VALUE_RANGE              2073.72     1994.86     2008.06     2029.59     2060.14     2106.71     2139.10     2153.84     2223.57     2205.56     2203.56     43712.12    
+AGG_RANGE                1984.16     1737.85     1758.91     1871.06     1993.24     2099.50     2135.60     2158.70     2180.21     2176.01     2175.54     39660.19    
+AGG_VALUE                9556.82     8014.66     8357.75     9435.18     9656.19     9910.92     9995.83     10165.19    10327.01    10290.24    10286.16    204602.39   
+AGG_RANGE_VALUE          2362.83     2116.26     2152.36     2236.05     2406.98     2459.38     2483.53     2592.01     2596.41     2596.41     2596.40     48095.27    
+GROUP_BY                 0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+LATEST_POINT             0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+RANGE_QUERY_DESC         0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+VALUE_RANGE_QUERY_DESC   0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+EXP_VALUE                9917.87     9697.78     9708.67     9782.55     9856.96     10036.74    10125.24    10221.68    10541.54    10491.58    10486.03    286781.08   
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Using configuration file: /home/tangyuxin/iotdb-1.3/iot-benchmark-iotdb-1.3_p/conf/config_ours.properties
+Using default memory configuration to startup.
+2024-09-21 21:02:55,532 INFO  cn.edu.tsinghua.iot.benchmark.App:41 - Initial Heap Size: 1061158912bytes, Max Heap Size: 16835936256bytes. 
+2024-09-21 21:02:55,545 WARN  cn.edu.tsinghua.iot.benchmark.conf.ConfigDescriptor:664 - Benchmark is doing query, no need to delete data. 
+2024-09-21 21:02:55,545 WARN  cn.edu.tsinghua.iot.benchmark.conf.ConfigDescriptor:668 - Benchmark is doing query, no need to create schema. 
+2024-09-21 21:02:55,637 INFO  cn.edu.tsinghua.iot.benchmark.conf.Config:528 - Init SensorTypes: BOOLEAN:INT32:INT64:FLOAT:DOUBLE:TEXT=0:0:0:1:0:0 
+2024-09-21 21:02:56,775 INFO  cn.edu.tsinghua.iot.benchmark.tsdb.DBWrapper:537 - Registering schema... 
+2024-09-21 21:02:56,775 INFO  cn.edu.tsinghua.iot.benchmark.tsdb.DBWrapper:537 - Registering schema... 
+2024-09-21 21:02:57,778 INFO  cn.edu.tsinghua.iot.benchmark.mode.BaseMode:157 - Registering schema successful! 
+2024-09-21 21:02:57,784 INFO  cn.edu.tsinghua.iot.benchmark.workload.GenerateDataWorkLoad:143 - Start Generating WorkLoad 
+2024-09-21 21:02:57,784 INFO  cn.edu.tsinghua.iot.benchmark.workload.GenerateDataWorkLoad:196 - According to OPERATION_PROPORTION, there is no need to write 
+2024-09-21 21:02:57,784 INFO  cn.edu.tsinghua.iot.benchmark.workload.GenerateDataWorkLoad:198 - Finish Generating WorkLoad 
+2024-09-21 21:02:58,789 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 1.00% workload is done. 
+2024-09-21 21:02:58,789 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 1.00% workload is done. 
+2024-09-21 21:04:28,788 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 10.00% workload is done. 
+2024-09-21 21:04:28,788 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 12.00% workload is done. 
+2024-09-21 21:05:58,788 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 22.00% workload is done. 
+2024-09-21 21:05:58,788 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 25.00% workload is done. 
+2024-09-21 21:07:28,788 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 43.00% workload is done. 
+2024-09-21 21:07:28,788 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 39.00% workload is done. 
+2024-09-21 21:08:58,788 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 52.00% workload is done. 
+2024-09-21 21:08:58,788 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 55.00% workload is done. 
+2024-09-21 21:10:28,788 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 61.00% workload is done. 
+2024-09-21 21:10:28,788 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 66.00% workload is done. 
+2024-09-21 21:11:58,788 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 70.00% workload is done. 
+2024-09-21 21:11:58,788 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 78.00% workload is done. 
+2024-09-21 21:13:28,788 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 98.00% workload is done. 
+2024-09-21 21:13:28,788 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 81.00% workload is done. 
+2024-09-21 21:14:58,788 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 93.00% workload is done. 
+2024-09-21 21:15:40,487 INFO  cn.edu.tsinghua.iot.benchmark.mode.BaseMode:169 - All dataClients finished. 
+----------------------Main Configurations----------------------
+########### Test Mode ###########
+BENCHMARK_WORK_MODE=testWithDefaultPath
+########### Database Connection Information ###########
+DOUBLE_WRITE=false
+DBConfig=
+  DB_SWITCH=IoTDB-130-SESSION_BY_TABLET
+  HOST=[127.0.0.1]
+########### Data Mode ###########
+GROUP_NUMBER=1
+DEVICE_NUMBER=1
+REAL_INSERT_RATE=1.0
+SENSOR_NUMBER=5
+IS_SENSOR_TS_ALIGNMENT=true
+IS_OUT_OF_ORDER=false
+OUT_OF_ORDER_RATIO=0.5
+########### Data Amount ###########
+OPERATION_PROPORTION=0:0:0:0:1:1:1:0:0:0:0:1
+CLIENT_NUMBER=2
+LOOP=100
+BATCH_SIZE_PER_WRITE=200000
+DEVICE_NUM_PER_WRITE=1
+START_TIME=2001-09-09T09:00:00+08:00
+POINT_STEP=2500000000
+OP_MIN_INTERVAL=0
+OP_MIN_INTERVAL_RANDOM=false
+INSERT_DATATYPE_PROPORTION=0:0:0:1:0:0
+ENCODINGS=RLE/RLE/RLE/RLE/RLE/DICTIONARY
+COMPRESSOR=LZ4
+########### Query Param ###########
+QUERY_DEVICE_NUM=1
+QUERY_SENSOR_NUM=5
+QUERY_INTERVAL=25000000000
+STEP_SIZE=1
+IS_RECENT_QUERY=false
+########### Other Param ###########
+IS_DELETE_DATA=false
+CREATE_SCHEMA=false
+BENCHMARK_CLUSTER=false
+VECTOR=true
+
+---------------------------------------------------------------
+main measurements:
+Create schema cost 0.00 second
+Test elapsed time (not include schema creation): 762.70 second
+----------------------------------------------------------Result Matrix----------------------------------------------------------
+Operation                okOperation              okPoint                  failOperation            failPoint                throughput(point/s)      
+INGESTION                0                        0                        0                        0                        0.00                     
+PRECISE_POINT            0                        0                        0                        0                        0.00                     
+TIME_RANGE               0                        0                        0                        0                        0.00                     
+VALUE_RANGE              0                        0                        0                        0                        0.00                     
+AGG_RANGE                55                       275                      0                        0                        0.36                     
+AGG_VALUE                37                       185                      0                        0                        0.24                     
+AGG_RANGE_VALUE          53                       265                      0                        0                        0.35                     
+GROUP_BY                 0                        0                        0                        0                        0.00                     
+LATEST_POINT             0                        0                        0                        0                        0.00                     
+RANGE_QUERY_DESC         0                        0                        0                        0                        0.00                     
+VALUE_RANGE_QUERY_DESC   0                        0                        0                        0                        0.00                     
+EXP_VALUE                55                       17259000000              0                        0                        22628807.80              
+---------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------Latency (ms) Matrix--------------------------------------------------------------------------
+Operation                AVG         MIN         P10         P25         MEDIAN      P75         P90         P95         P99         P999        MAX         SLOWEST_THREAD
+INGESTION                0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+PRECISE_POINT            0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+TIME_RANGE               0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+VALUE_RANGE              0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+AGG_RANGE                2020.26     1727.80     1782.04     1838.83     2034.37     2177.52     2197.55     2264.64     2630.86     2538.24     2527.95     63584.35    
+AGG_VALUE                11263.08    9711.00     9825.22     10714.78    11028.20    12019.08    12477.06    12563.12    13135.61    12997.75    12982.43    208703.85   
+AGG_RANGE_VALUE          2930.63     2420.37     2560.37     2690.58     2988.49     3129.72     3171.95     3332.66     3516.77     3516.77     3516.77     90179.84    
+GROUP_BY                 0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+LATEST_POINT             0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+RANGE_QUERY_DESC         0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+VALUE_RANGE_QUERY_DESC   0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+EXP_VALUE                12992.46    12423.99    12613.88    12867.36    12994.04    13144.56    13294.82    13408.30    13457.22    13456.50    13456.42    439954.92   
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Using configuration file: /home/tangyuxin/iotdb-1.3/iot-benchmark-iotdb-1.3_p/conf/config_nolazy.properties
+Using default memory configuration to startup.
+2024-09-22 23:05:01,371 INFO  cn.edu.tsinghua.iot.benchmark.App:41 - Initial Heap Size: 1061158912bytes, Max Heap Size: 16835936256bytes. 
+2024-09-22 23:05:01,384 WARN  cn.edu.tsinghua.iot.benchmark.conf.ConfigDescriptor:664 - Benchmark is doing query, no need to delete data. 
+2024-09-22 23:05:01,384 WARN  cn.edu.tsinghua.iot.benchmark.conf.ConfigDescriptor:668 - Benchmark is doing query, no need to create schema. 
+2024-09-22 23:05:01,476 INFO  cn.edu.tsinghua.iot.benchmark.conf.Config:528 - Init SensorTypes: BOOLEAN:INT32:INT64:FLOAT:DOUBLE:TEXT=0:0:0:1:0:0 
+2024-09-22 23:05:02,612 INFO  cn.edu.tsinghua.iot.benchmark.tsdb.DBWrapper:537 - Registering schema... 
+2024-09-22 23:05:02,612 INFO  cn.edu.tsinghua.iot.benchmark.tsdb.DBWrapper:537 - Registering schema... 
+2024-09-22 23:05:03,614 INFO  cn.edu.tsinghua.iot.benchmark.mode.BaseMode:157 - Registering schema successful! 
+2024-09-22 23:05:03,621 INFO  cn.edu.tsinghua.iot.benchmark.workload.GenerateDataWorkLoad:143 - Start Generating WorkLoad 
+2024-09-22 23:05:03,621 INFO  cn.edu.tsinghua.iot.benchmark.workload.GenerateDataWorkLoad:196 - According to OPERATION_PROPORTION, there is no need to write 
+2024-09-22 23:05:03,621 INFO  cn.edu.tsinghua.iot.benchmark.workload.GenerateDataWorkLoad:198 - Finish Generating WorkLoad 
+2024-09-22 23:05:04,625 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 1.00% workload is done. 
+2024-09-22 23:05:04,625 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 1.00% workload is done. 
+2024-09-22 23:06:34,624 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 11.00% workload is done. 
+2024-09-22 23:06:34,624 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 10.00% workload is done. 
+2024-09-22 23:08:04,624 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 22.00% workload is done. 
+2024-09-22 23:08:04,624 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 25.00% workload is done. 
+2024-09-22 23:09:34,624 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 41.00% workload is done. 
+2024-09-22 23:09:34,624 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 39.00% workload is done. 
+2024-09-22 23:11:04,624 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 54.00% workload is done. 
+2024-09-22 23:11:04,624 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 50.00% workload is done. 
+2024-09-22 23:12:34,624 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 59.00% workload is done. 
+2024-09-22 23:12:34,624 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 64.00% workload is done. 
+2024-09-22 23:14:04,624 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 69.00% workload is done. 
+2024-09-22 23:14:04,624 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 77.00% workload is done. 
+2024-09-22 23:15:34,624 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-2 93.00% workload is done. 
+2024-09-22 23:15:34,624 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 78.00% workload is done. 
+2024-09-22 23:17:04,624 INFO  cn.edu.tsinghua.iot.benchmark.client.DataClient:139 - DataClient-thread-1 91.00% workload is done. 
+2024-09-22 23:18:09,985 INFO  cn.edu.tsinghua.iot.benchmark.mode.BaseMode:169 - All dataClients finished. 
+----------------------Main Configurations----------------------
+########### Test Mode ###########
+BENCHMARK_WORK_MODE=testWithDefaultPath
+########### Database Connection Information ###########
+DOUBLE_WRITE=false
+DBConfig=
+  DB_SWITCH=IoTDB-130-SESSION_BY_TABLET
+  HOST=[127.0.0.1]
+########### Data Mode ###########
+GROUP_NUMBER=1
+DEVICE_NUMBER=1
+REAL_INSERT_RATE=1.0
+SENSOR_NUMBER=5
+IS_SENSOR_TS_ALIGNMENT=true
+IS_OUT_OF_ORDER=false
+OUT_OF_ORDER_RATIO=0.5
+########### Data Amount ###########
+OPERATION_PROPORTION=0:0:0:0:1:1:1:0:0:0:0:1
+CLIENT_NUMBER=2
+LOOP=100
+BATCH_SIZE_PER_WRITE=200000
+DEVICE_NUM_PER_WRITE=1
+START_TIME=2001-09-09T09:00:00+08:00
+POINT_STEP=2500000000
+OP_MIN_INTERVAL=0
+OP_MIN_INTERVAL_RANDOM=false
+INSERT_DATATYPE_PROPORTION=0:0:0:1:0:0
+ENCODINGS=RLE/RLE/RLE/RLE/RLE/DICTIONARY
+COMPRESSOR=LZ4
+########### Query Param ###########
+QUERY_DEVICE_NUM=1
+QUERY_SENSOR_NUM=5
+QUERY_INTERVAL=25000000000
+STEP_SIZE=1
+IS_RECENT_QUERY=false
+########### Other Param ###########
+IS_DELETE_DATA=false
+CREATE_SCHEMA=false
+BENCHMARK_CLUSTER=false
+VECTOR=true
+
+---------------------------------------------------------------
+main measurements:
+Create schema cost 0.00 second
+Test elapsed time (not include schema creation): 786.36 second
+----------------------------------------------------------Result Matrix----------------------------------------------------------
+Operation                okOperation              okPoint                  failOperation            failPoint                throughput(point/s)      
+INGESTION                0                        0                        0                        0                        0.00                     
+PRECISE_POINT            0                        0                        0                        0                        0.00                     
+TIME_RANGE               0                        0                        0                        0                        0.00                     
+VALUE_RANGE              0                        0                        0                        0                        0.00                     
+AGG_RANGE                55                       275                      0                        0                        0.35                     
+AGG_VALUE                37                       185                      0                        0                        0.24                     
+AGG_RANGE_VALUE          53                       265                      0                        0                        0.34                     
+GROUP_BY                 0                        0                        0                        0                        0.00                     
+LATEST_POINT             0                        0                        0                        0                        0.00                     
+RANGE_QUERY_DESC         0                        0                        0                        0                        0.00                     
+VALUE_RANGE_QUERY_DESC   0                        0                        0                        0                        0.00                     
+EXP_VALUE                55                       17259000000              0                        0                        21947901.14              
+---------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------Latency (ms) Matrix--------------------------------------------------------------------------
+Operation                AVG         MIN         P10         P25         MEDIAN      P75         P90         P95         P99         P999        MAX         SLOWEST_THREAD
+INGESTION                0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+PRECISE_POINT            0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+TIME_RANGE               0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+VALUE_RANGE              0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+AGG_RANGE                2028.89     1728.50     1770.46     1869.80     2037.45     2172.27     2201.24     2291.05     2387.17     2362.54     2359.80     64231.16    
+AGG_VALUE                11711.44    10156.83    10221.70    11177.71    11694.14    12472.03    12847.52    12992.37    13065.67    13052.43    13050.96    217447.59   
+AGG_RANGE_VALUE          3018.86     2525.06     2671.45     2824.43     3050.47     3216.38     3239.77     3299.84     3423.31     3414.31     3413.31     93431.04    
+GROUP_BY                 0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+LATEST_POINT             0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+RANGE_QUERY_DESC         0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+VALUE_RANGE_QUERY_DESC   0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        0.00        
+EXP_VALUE                13397.63    12963.07    13049.50    13167.74    13420.59    13575.84    13683.32    13731.51    13957.33    13909.25    13903.90    452943.25   
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
