@@ -69,13 +69,13 @@ IoTDB>
 
 ## Run Example
 A simple example of running CompressIoTDB is as follows.
-### Step 1: Load Datasets
+### Step 0: Load Datasets
 The example test dataset is a sythectic dataset (detailed in Section 7.1) with a length of $1 × 10^8$ and repetition rate of $0.5$.
 ```shell
 # Ensure that you are in the sbin directory.
 > ./tools/load-tsfile.sh -s your/path/to/CompressIoTDB/data/ -os none -of none
 ```
-### Step 2: Execute Queries
+### Step 1: Execute Queries
 After starting the client, you can execute queries using the interactive command-line interface. For SQL syntax, please refer to the [official SQL manual of Apache IoTDB](https://iotdb.apache.org/UserGuide/latest/SQL-Manual/SQL-Manual.html).
 ```shell
 IoTDB> show devices
@@ -130,7 +130,7 @@ QUERY_LOWER_VALUE=7000
 LOG_PRINT_INTERVAL=90
 ```
 
-### Step 3: Run Benchmark
+### Step 2: Run Benchmark
  Run the following statement to execute the benchmark; results can be found in ``CompressIoTDB/benchmark/iot-benchmark-iotdb-1.3/data/csvOutput``. Additionally, the original experimental results from Sections 7.3 and 7.4 of the paper can be found in ``CompressIoTDB/benchmark/iot-benchmark-iotdb-1.3/res_on_datasets_of_varying_size`` and ``CompressIoTDB/benchmark/iot-benchmark-iotdb-1.3/res_on_datasets_of_varying_size``.
 ```shell
 > sh benchmark.sh -cf ./conf/config_modi/config.properties
