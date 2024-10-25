@@ -100,7 +100,7 @@ It costs 11.482s
 We have extended [IoT-Benchmark](https://iotdb.apache.org/UserGuide/latest/Tools-System/Benchmark.html) to support *expression query with value filter*. The source code is in ``\benchmark`` directory, and the executable is in ``\benchmark\iot-benchmark-iotdb-1.3``. You can also download IoT-Benchmark from the open source [github repository]((https://github.com/thulab/iot-benchmark)), but it does not support *expression query with value filter*.
 
 ### Step 0: Build IoT-Benchmark
-If you choose to use our executable jar package, skip this.
+If you choose to use our executable jar package, skip this. The test script is in ``CompressIoTDB/benchmark/iot-benchmark/iotdb-1.3/target/iot-benchmark-iotdb-1.3``.
 ```shell
 > git clone https://github.com/thulab/iot-benchmark.git
 > cd iot-benchmark
@@ -109,7 +109,7 @@ If you choose to use our executable jar package, skip this.
 
 ### Step 1: Configuration Setup
 
-To run the example test dataset on IoT-Benchmark, a configuration example for the config file ``CompressIoTDB/benchmark/iot-benchmark-iotdb-1.3/conf/config.properties`` is as follows:
+To run the example test dataset on IoT-Benchmark, a configuration example for the config file ``iot-benchmark-iotdb-1.3/conf/config.properties`` is as follows:
 
 ```shell
 PORT=6667
@@ -131,7 +131,7 @@ LOG_PRINT_INTERVAL=90
 ```
 
 ### Step 2: Run Benchmark
- Run the following statement to execute the benchmark; results can be found in ``CompressIoTDB/benchmark/iot-benchmark-iotdb-1.3/data/csvOutput``. Additionally, the original experimental results from Sections 7.3 and 7.4 of the paper can be found in ``CompressIoTDB/benchmark/iot-benchmark-iotdb-1.3/res_on_datasets_of_varying_size`` and ``CompressIoTDB/benchmark/iot-benchmark-iotdb-1.3/res_on_datasets_of_varying_size``.
+ Run the following statement to execute the benchmark; results can be found in ``iot-benchmark-iotdb-1.3/data/csvOutput``. Additionally, the original experimental results from Sections 7.3 and 7.4 of the paper can be found in ``CompressIoTDB/benchmark/iot-benchmark-iotdb-1.3/res_on_datasets_of_varying_size`` and ``CompressIoTDB/benchmark/iot-benchmark-iotdb-1.3/res_on_datasets_of_varying_size``.
 ```shell
 > sh benchmark.sh -cf ./conf/config_modi/config.properties
 ```
