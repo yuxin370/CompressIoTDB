@@ -7,7 +7,7 @@ CompressIoTDB integrates seamlessly with the native database system, Apache IoTD
 - **Appendix:** ``appendix.pdf``
 - **Source Code:** ``/iotdb`` and ``/tsfile``
 - **Example Test Dataset:** ``/data``
-- **Bechmark:**``/benchamrk``
+- **Benchmark:**``/benchmark``
 
 ## Get Started
 
