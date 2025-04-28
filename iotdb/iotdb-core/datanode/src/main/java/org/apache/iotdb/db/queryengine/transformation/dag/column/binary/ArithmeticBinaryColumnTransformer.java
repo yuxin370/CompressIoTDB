@@ -23,10 +23,16 @@ import org.apache.iotdb.db.queryengine.transformation.dag.column.ColumnTransform
 
 import org.apache.tsfile.block.column.Column;
 import org.apache.tsfile.block.column.ColumnBuilder;
+import org.apache.tsfile.read.common.block.column.DeltaColumn;
+import org.apache.tsfile.read.common.block.column.DeltaColumnBuilder;
 import org.apache.tsfile.read.common.block.column.RLEColumn;
 import org.apache.tsfile.read.common.block.column.RunLengthEncodedColumn;
 import org.apache.tsfile.read.common.type.Type;
 import org.apache.tsfile.utils.Pair;
+
+import java.util.Collections;
+
+import static org.apache.tsfile.read.common.block.TsBlockUtil.contructColumnBuilders;
 
 public abstract class ArithmeticBinaryColumnTransformer extends BinaryColumnTransformer {
   protected ArithmeticBinaryColumnTransformer(
@@ -197,6 +203,57 @@ public abstract class ArithmeticBinaryColumnTransformer extends BinaryColumnTran
     }
   }
 
+  private void doTransformWithLeftDeltaandConstant(
+      Column leftColumn, Column rightColumn, ColumnBuilder builder, int positionCount) {
+    Column[] leftPatterns = ((DeltaColumn) leftColumn).getVisibleColumns();
+    int leftPatternCount = leftPatterns.length;
+    int leftIndex = 0, curLeft = 0, curLeftPositionCount = 0;
+    Column leftPatternColumn = leftPatterns[0]; // left physical value column
+    int index = 0; // the index of current calculating value
+    int length = 0; // the length to process each round
+    double value = rightTransformer.getType().getDouble(rightColumn, 0);
+
+    DeltaColumnBuilder valueBuilder = (DeltaColumnBuilder) builder;
+
+    while (index < positionCount) {
+      // if (curLeft == curLeftPositionCount) {
+      /** current leftPattern has reached end */
+
+      ColumnBuilder valueColumnBuilder = contructColumnBuilders(Collections.singletonList(builder.getDataType()))[0];
+      if (leftIndex < leftPatternCount) {
+        /** read next deltaPattern */
+        curLeft = 0;
+        leftPatternColumn = leftPatterns[leftIndex];
+        curLeftPositionCount = leftPatternColumn.getPositionCount();
+        leftIndex++;
+      } else {
+        throw new RuntimeException(
+            "The positionCount of leftColumn is less than the requested positionCount");
+      }
+      // }
+
+      length =
+          curLeftPositionCount - curLeft > positionCount - index
+              ? positionCount - index
+              : curLeftPositionCount - curLeft;
+
+      returnType.writeDouble(
+          valueColumnBuilder,
+          transform(leftTransformer.getType().getDouble(leftPatternColumn, curLeft), value));
+      curLeft++;
+      index++;
+      for (int i = 1; i < length; i++, curLeft++, index++) {
+        if (!leftPatternColumn.isNull(curLeft)) {
+          returnType.writeDouble(
+              valueColumnBuilder, leftTransformer.getType().getDouble(leftPatternColumn, curLeft));
+        } else {
+          valueColumnBuilder.appendNull();
+        }
+      }
+      valueBuilder.writeDeltaPattern(valueColumnBuilder.build());
+    }
+  }
+
   private void doTransformWithRightRLEandConstant(
       Column leftColumn, Column rightColumn, ColumnBuilder builder, int positionCount) {
     Pair<Column[], int[]> rightPatterns = ((RLEColumn) rightColumn).getVisibleColumns();
@@ -248,6 +305,56 @@ public abstract class ArithmeticBinaryColumnTransformer extends BinaryColumnTran
     }
   }
 
+  private void doTransformWithRightDeltaandConstant(
+      Column leftColumn, Column rightColumn, ColumnBuilder builder, int positionCount) {
+    Column[] rightPatterns = ((DeltaColumn) rightColumn).getVisibleColumns();
+    int rightPatternCount = rightPatterns.length;
+    int rightIndex = 0, curRight = 0, curRightPositionCount = 0;
+    Column rightPatternColumn = rightPatterns[0]; // right physical value column
+    int index = 0; // the index of current calculating value
+    int length = 0; // the length to process each round
+
+    DeltaColumnBuilder valueBuilder = (DeltaColumnBuilder) builder;
+
+    double value = leftTransformer.getType().getDouble(leftColumn, 0);
+    while (index < positionCount) {
+      // if (curRight == curRightPositionCount) {
+      /** current rightPattern has reached end */
+      ColumnBuilder valueColumnBuilder =  contructColumnBuilders(Collections.singletonList(builder.getDataType()))[0];
+      if (rightIndex < rightPatternCount) {
+        /** read next rlePattern */
+        curRight = 0;
+        rightPatternColumn = rightPatterns[rightIndex];
+        curRightPositionCount = rightPatternColumn.getPositionCount();
+        rightIndex++;
+      } else {
+        throw new RuntimeException(
+            "The positionCount of rightColumn is less than the requested positionCount");
+      }
+      // }
+      length =
+          curRightPositionCount - curRight > positionCount - index
+              ? positionCount - index
+              : curRightPositionCount - curRight;
+
+      returnType.writeDouble(
+          valueColumnBuilder,
+          transform(value, rightTransformer.getType().getDouble(rightPatternColumn, curRight)));
+      curRight++;
+      index++;
+      for (int i = 1; i < length; i++, curRight++, index++) {
+        if (!rightPatternColumn.isNull(curRight)) {
+          returnType.writeDouble(
+              valueColumnBuilder,
+              transform(value, rightTransformer.getType().getDouble(rightPatternColumn, curRight)));
+        } else {
+          valueColumnBuilder.appendNull();
+        }
+      }
+      valueBuilder.writeDeltaPattern(valueColumnBuilder.build());
+    }
+  }
+
   @Override
   protected void doTransform(
       Column leftColumn, Column rightColumn, ColumnBuilder builder, int positionCount) {
@@ -259,6 +366,16 @@ public abstract class ArithmeticBinaryColumnTransformer extends BinaryColumnTran
       return;
     } else if (rightColumn instanceof RLEColumn && leftColumn instanceof RunLengthEncodedColumn) {
       doTransformWithRightRLEandConstant(leftColumn, rightColumn, builder, positionCount);
+      return;
+    } else if ((this instanceof ArithmeticAdditionColumnTransformer
+            || this instanceof ArithmeticSubtractionColumnTransformer)
+        && (leftColumn instanceof DeltaColumn && rightColumn instanceof RunLengthEncodedColumn)) {
+      doTransformWithLeftDeltaandConstant(leftColumn, rightColumn, builder, positionCount);
+      return;
+    } else if ((this instanceof ArithmeticAdditionColumnTransformer
+            || this instanceof ArithmeticSubtractionColumnTransformer)
+        && (rightColumn instanceof DeltaColumn && leftColumn instanceof RunLengthEncodedColumn)) {
+      doTransformWithRightDeltaandConstant(leftColumn, rightColumn, builder, positionCount);
       return;
     }
     for (int i = 0; i < positionCount; i++) {

@@ -23,6 +23,7 @@ import org.apache.tsfile.block.column.Column;
 import org.apache.tsfile.block.column.ColumnBuilder;
 import org.apache.tsfile.compress.IUnCompressor;
 import org.apache.tsfile.encoding.decoder.Decoder;
+import org.apache.tsfile.encoding.decoder.DeltaBinaryDecoder;
 import org.apache.tsfile.encoding.decoder.DictionaryDecoder;
 import org.apache.tsfile.encoding.decoder.FloatDecoder;
 import org.apache.tsfile.encoding.decoder.RleDecoder;
@@ -33,9 +34,11 @@ import org.apache.tsfile.read.common.BatchData;
 import org.apache.tsfile.read.common.BatchDataFactory;
 import org.apache.tsfile.read.common.TimeRange;
 import org.apache.tsfile.read.common.block.TsBlockBuilder;
+import org.apache.tsfile.read.common.block.column.DeltaColumnBuilder;
 import org.apache.tsfile.read.common.block.column.RLEColumnBuilder;
 import org.apache.tsfile.read.filter.basic.Filter;
 import org.apache.tsfile.utils.Binary;
+import org.apache.tsfile.utils.DeltaPattern;
 import org.apache.tsfile.utils.RLEPattern;
 import org.apache.tsfile.utils.ReadWriteIOUtils;
 import org.apache.tsfile.utils.TsPrimitiveType;
@@ -494,6 +497,8 @@ public class ValuePageReader {
         int nextDoNothingIndex = doNothingSkipCount == 0 ? -1 : doNothingArray.get(doNothingIdx);
         isrle = valueColumn.getPositionCount() == 1;
         Object value = null;
+        // //LOGGER.info(
+        //     "[tyx] nullCount = " + nullCount + " doNothingSkipCount = " + doNothingSkipCount);
         if (isrle) {
           value = valueColumn.getObject(0);
         }
@@ -578,6 +583,220 @@ public class ValuePageReader {
     }
   }
 
+  public void writeColumnBuilderWithNextDeltaBatch(
+      int readEndIndex, TsBlockBuilder builder, int index, boolean[] keepCurrentRow) {
+    // LOGGER.info("[tyx] writeColumnBuilderWithNextDeltaBatch with keepCurrentRow");
+    if (!(builder.getColumnBuilder(index) instanceof DeltaColumnBuilder)) {
+      int initialExpectedEntries = (int) pageHeader.getStatistics().getCount();
+      builder.buildValueColumnBuilder(
+          index, new DeltaColumnBuilder(null, initialExpectedEntries, dataType), dataType);
+    }
+    DeltaColumnBuilder valueBuilder = (DeltaColumnBuilder) builder.getColumnBuilder(index);
+
+    DeltaPattern aPattern = valueDecoder.readDeltaPattern(valueBuffer, dataType);
+    Column valueColumn;
+    int readIndex = 0, patternLength = 0;
+    while (readIndex < readEndIndex) {
+      valueColumn = aPattern.getValue();
+      patternLength = aPattern.getPositionCount();
+      if (patternLength == 0) {
+        // column has been consumed up
+        break;
+      }
+
+      // get null value index and skip value segment
+      // base on the assumption that null value is minority and skip value is continous
+
+      List<Integer> nullIndexArray = new ArrayList<Integer>();
+      List<Integer> skipIndexArray = new ArrayList<Integer>();
+      List<Integer> doNothingArray = new ArrayList<Integer>();
+      int tmp = readIndex;
+      // int doNothingSkipCount = 0;
+      for (int idx = 0; idx < patternLength && readIndex < readEndIndex; readIndex++) {
+        if (((bitmap[readIndex / 8] & 0xFF) & (MASK >>> (readIndex % 8))) == 0) {
+          if (keepCurrentRow[readIndex]) {
+            nullIndexArray.add(readIndex - tmp);
+          } else {
+            doNothingArray.add(readIndex - tmp);
+            // doNothingSkipCount++;
+          }
+          continue;
+        }
+        if (!keepCurrentRow[readIndex]) {
+          skipIndexArray.add(readIndex - tmp);
+        }
+        idx++;
+      }
+      int writePatternLength = readIndex - tmp;
+      int skipidx = 0, skipCount = skipIndexArray.size();
+      int doNothingIdx = 0, doNothingSkipCount = doNothingArray.size();
+      if (nullIndexArray.size() == 0) {
+        // no null to be appended
+        if (skipIndexArray.size() == 0) {
+          // just write all the values
+          if (writePatternLength == patternLength) {
+            valueBuilder.writeDeltaPattern(valueColumn);
+          } else {
+            valueBuilder.writeDeltaPattern(valueColumn.getRegion(0, writePatternLength));
+          }
+        } else {
+          int patternIdx = 0;
+          int nextSkipIndex = skipIndexArray.get(skipidx);
+          int nextDoNothingIndex = doNothingSkipCount == 0 ? -1 : doNothingArray.get(doNothingIdx);
+          ColumnBuilder valueColumnBuilder =
+              contructColumnBuilders(Collections.singletonList(dataType))[0];
+          for (int i = 0; i < writePatternLength; i++) {
+            if (i == nextSkipIndex) {
+              skipidx++;
+              if (skipidx < skipCount) {
+                nextSkipIndex = skipIndexArray.get(skipidx);
+              }
+            } else if (i == nextDoNothingIndex) {
+              doNothingIdx++;
+              if (doNothingIdx < doNothingSkipCount) {
+                nextDoNothingIndex = doNothingArray.get(doNothingIdx);
+              }
+            } else {
+              valueColumnBuilder.writeObject(valueColumn.getObject(patternIdx));
+              patternIdx++;
+            }
+          }
+
+          valueBuilder.writeDeltaPattern(valueColumnBuilder.build());
+        }
+      } else {
+        // some null may be appended
+        ColumnBuilder valueColumnBuilder =
+            contructColumnBuilders(Collections.singletonList(dataType))[0];
+        int patternIdx = 0;
+        int nullCount = nullIndexArray.size();
+        int nullidx = 0;
+        int nextNullIndex = nullIndexArray.get(nullidx);
+        int nextDoNothingIndex = doNothingSkipCount == 0 ? -1 : doNothingArray.get(doNothingIdx);
+        if (skipIndexArray.isEmpty()) {
+          // all the null need to be appended
+          for (int i = 0; i < writePatternLength; i++) {
+            if (i == nextNullIndex) {
+              valueColumnBuilder.appendNull();
+              nullidx += 1;
+              if (nullidx < nullCount) {
+                nextNullIndex = nullIndexArray.get(nullidx);
+              }
+              continue;
+            } else if (i == nextDoNothingIndex) {
+              doNothingIdx++;
+              if (doNothingIdx < doNothingSkipCount) {
+                nextDoNothingIndex = doNothingArray.get(doNothingIdx);
+              }
+            } else {
+              valueColumnBuilder.writeObject(valueColumn.getObject(patternIdx));
+              patternIdx++;
+            }
+          }
+
+          valueBuilder.writeDeltaPattern(valueColumnBuilder.build());
+        } else {
+          int nextSkipIndex = skipIndexArray.get(skipidx);
+          int cumInt = 0;
+          long cumLong = 0L;
+          float cumFloat = 0f;
+          double cumDouble = 0d;
+          for (int i = 0; i < writePatternLength; i++) {
+            if (i == nextSkipIndex) {
+              skipidx++;
+              if (skipidx < skipCount) {
+                nextSkipIndex = skipIndexArray.get(skipidx);
+              }
+              Object raw = valueColumn.getObject(patternIdx);
+              if (raw != null) {
+                switch (dataType) {
+                  case INT32:
+                    cumInt += (Integer) raw;
+                    break;
+                  case INT64:
+                    cumLong += (Long) raw;
+                    break;
+                  case FLOAT:
+                    cumFloat += (Float) raw;
+                    break;
+                  case DOUBLE:
+                    cumDouble += (Double) raw;
+                    break;
+                  default:
+                    // for other types, no cumulative delta
+                }
+              }
+              patternIdx++;
+              continue;
+            }
+            if (i == nextNullIndex) {
+              valueColumnBuilder.appendNull();
+              nullidx += 1;
+              if (nullidx < nullCount) {
+                nextNullIndex = nullIndexArray.get(nullidx);
+              }
+              continue;
+            }
+            if (i == nextDoNothingIndex) {
+              doNothingIdx++;
+              if (doNothingIdx < doNothingSkipCount) {
+                nextDoNothingIndex = doNothingArray.get(doNothingIdx);
+              }
+              continue;
+            }
+            // write kept value + cumulative delta
+            Object raw = valueColumn.getObject(patternIdx);
+            if (raw == null) {
+              valueColumnBuilder.appendNull();
+            } else {
+              switch (dataType) {
+                case INT32:
+                  int vi = (Integer) raw + cumInt;
+                  valueColumnBuilder.writeInt(vi);
+                  break;
+                case INT64:
+                  long vl = (Long) raw + cumLong;
+                  valueColumnBuilder.writeLong(vl);
+                  break;
+                case FLOAT:
+                  float vf = (Float) raw + cumFloat;
+                  valueColumnBuilder.writeFloat(vf);
+                  break;
+                case DOUBLE:
+                  double vd = (Double) raw + cumDouble;
+                  valueColumnBuilder.writeDouble(vd);
+                  break;
+                default:
+                  valueColumnBuilder.writeObject(raw);
+              }
+            }
+            patternIdx++;
+          }
+
+          valueBuilder.writeDeltaPattern(valueColumnBuilder.build());
+        }
+      }
+      aPattern = valueDecoder.readDeltaPattern(valueBuffer, dataType);
+    }
+    if (readIndex < readEndIndex) {
+      ColumnBuilder valueColumnBuilder =
+          contructColumnBuilders(Collections.singletonList(dataType))[0];
+      for (int i = readIndex; i < readEndIndex; i++) {
+        if (((bitmap[i / 8] & 0xFF) & (MASK >>> (i % 8))) != 0) {
+          if (keepCurrentRow[i]) {
+            throw new RuntimeException(
+                "value buffer has been epmty, but value [" + i + "] is not null.");
+          }
+          continue;
+        }
+        if (keepCurrentRow[i]) {
+          valueColumnBuilder.appendNull();
+        }
+      }
+      valueBuilder.writeDeltaPattern(valueColumnBuilder.build());
+    }
+  }
+
   public void writeColumnBuilderWithNextBatch(
       int readEndIndex, TsBlockBuilder builder, int index, boolean[] keepCurrentRow)
       throws IOException {
@@ -597,6 +816,13 @@ public class ValuePageReader {
       writeColumnBuilderWithNextRLEBatch(readEndIndex, builder, index, keepCurrentRow);
       return;
     }
+    if (valueDecoder instanceof DeltaBinaryDecoder
+        || (valueDecoder instanceof FloatDecoder
+            && ((FloatDecoder) valueDecoder).isDeltaDecoder())) {
+      writeColumnBuilderWithNextDeltaBatch(readEndIndex, builder, index, keepCurrentRow);
+      return;
+    }
+
     for (int i = 0; i < readEndIndex; i++) {
       if (((bitmap[i / 8] & 0xFF) & (MASK >>> (i % 8))) == 0) {
         if (keepCurrentRow[i]) {
@@ -716,6 +942,7 @@ public class ValuePageReader {
         int nullidx = 0;
         int nextNullIndex = 0;
         if (isrle) {
+          // //LOGGER.info("[tyx] in with null rle ." + writePatternLength);
           int curRun = 1;
           int curNullAcc = 1;
           int lastNullIndex = -1;
@@ -726,10 +953,13 @@ public class ValuePageReader {
           while (nullidx < nullCount) {
             nextNullIndex = nullIndexArray.get(nullidx);
             curRun = nextNullIndex - lastNullIndex - 1;
+            // //LOGGER.info("[tyx] curRun = " + curRun + " null index = " + nextNullIndex);
             if (curRun != 0) {
               if (lastNullIndex != -1) {
+                // //LOGGER.info("[tyx]  ------- write Nulls " + curNullAcc);
                 valueBuilder.writeRLEPattern(nullColumnBuilder.build(), curNullAcc);
               }
+              // //LOGGER.info("[tyx]  ------- write RLEs " + curRun);
               valueBuilder.writeRLEPattern(valueColumnBuilder.build(), curRun);
               curNullAcc = 1;
             } else if (lastNullIndex != -1) {
@@ -738,10 +968,12 @@ public class ValuePageReader {
             nullidx += 1;
             lastNullIndex = nextNullIndex;
           }
+          // //LOGGER.info("[tyx]  ------- write Nulls " + curNullAcc);
           valueBuilder.writeRLEPattern(nullColumnBuilder.build(), curNullAcc);
           // consume rest values.
           curRun = writePatternLength - lastNullIndex - 1;
           if (curRun != 0) {
+            // //LOGGER.info("[tyx]  ------- write RLEs " + curRun);
             valueBuilder.writeRLEPattern(valueColumnBuilder.build(), curRun);
           }
         } else {
@@ -779,20 +1011,149 @@ public class ValuePageReader {
     }
   }
 
+  public void writeColumnBuilderWithNextDeltaBatch(
+      int readStartIndex, int readEndIndex, TsBlockBuilder builder, int index) {
+    // LOGGER.info("[tyx] writeColumnBuilderWithNextDeltaBatch without keepCurrentRow");
+    if (!(builder.getColumnBuilder(index) instanceof DeltaColumnBuilder)) {
+      int initialExpectedEntries = (int) pageHeader.getStatistics().getCount();
+      builder.buildValueColumnBuilder(
+          index, new DeltaColumnBuilder(null, initialExpectedEntries, dataType), dataType);
+    }
+    DeltaColumnBuilder valueBuilder = (DeltaColumnBuilder) builder.getColumnBuilder(index);
+    // LOGGER.info("[tyx] builder.count = " + builder.getPositionCount());
+    // skip the precedent values, taking null value into count;
+    int skipCount = 0; // record how many values should be skipped.
+    for (int i = 0; i < readStartIndex; i++) {
+      if (((bitmap[i / 8] & 0xFF) & (MASK >>> (i % 8))) == 0) {
+        continue;
+      }
+      skipCount++;
+    }
+    DeltaPattern aPattern = valueDecoder.readDeltaPattern(valueBuffer, dataType);
+    int patternLength = aPattern.getPositionCount();
+    // LOGGER.info("[tyx] skipCount = " + skipCount);
+    while (skipCount > 0) {
+      if (skipCount >= patternLength) {
+        skipCount -= patternLength;
+        // LOGGER.info("[tyx] skipped a pattern = " + patternLength);
+        aPattern = valueDecoder.readDeltaPattern(valueBuffer, dataType);
+        patternLength = aPattern.getPositionCount();
+      } else {
+        // LOGGER.info("[tyx] skipped = " + patternLength);
+        aPattern.subColumn(skipCount);
+        skipCount = 0;
+      }
+    }
+    int readIndex = readStartIndex;
+    Column valueColumn;
+    while (readIndex < readEndIndex) {
+      valueColumn = aPattern.getValue();
+      patternLength = aPattern.getPositionCount();
+      if (patternLength == 0) {
+        // column has been consumed up
+        break;
+      }
+      // LOGGER.info(
+      // "[tyx] start a new pattern, pattern length = "
+      //     + patternLength
+      //     + ", readIndex = "
+      //     + readIndex
+      //     + ", readEndIndex = "
+      //     + readEndIndex);
+      // get null value idx;
+      // based on the assumption that zero is minority;
+      List<Integer> nullIndexArray = new ArrayList<Integer>();
+      int tmp = readIndex;
+      for (int idx = 0; idx < patternLength && readIndex < readEndIndex; readIndex++) {
+        if (((bitmap[readIndex / 8] & 0xFF) & (MASK >>> (readIndex % 8))) == 0) {
+          nullIndexArray.add(readIndex - tmp);
+          continue;
+        }
+        idx++;
+      }
+      int writePatternLength = readIndex - tmp;
+      if (nullIndexArray.isEmpty()) {
+        // no null nead to be inserted.
+        if (writePatternLength == patternLength) {
+          valueBuilder.writeDeltaPattern(valueColumn);
+        } else {
+          valueBuilder.writeDeltaPattern(valueColumn.getRegion(0, writePatternLength));
+        }
+        // LOGGER.info(
+        // "[tyx] no null to be inserted. patternlength = "
+        //     + patternLength
+        //     + " writed "
+        //     + writePatternLength);
+
+      } else {
+        ColumnBuilder valueColumnBuilder =
+            contructColumnBuilders(Collections.singletonList(dataType))[0];
+        int nullCount = nullIndexArray.size();
+        // LOGGER.info("[tyx] null count = " + nullCount);
+        int nullidx = 0;
+        int nextNullIndex = 0;
+        nextNullIndex = nullIndexArray.get(nullidx);
+        int patternIdx = 0;
+        for (int i = 0; i < writePatternLength; i++) {
+          if (i == nextNullIndex) {
+            valueColumnBuilder.appendNull();
+            nullidx += 1;
+            if (nullidx < nullCount) {
+              nextNullIndex = nullIndexArray.get(nullidx);
+            }
+            continue;
+          }
+          valueColumnBuilder.writeObject(valueColumn.getObject(patternIdx));
+          patternIdx++;
+        }
+        valueBuilder.writeDeltaPattern(valueColumnBuilder.build());
+      }
+    }
+    aPattern = valueDecoder.readDeltaPattern(valueBuffer, dataType);
+
+    if (readIndex < readEndIndex) {
+      ColumnBuilder valueColumnBuilder =
+          contructColumnBuilders(Collections.singletonList(dataType))[0];
+      for (int i = readIndex; i < readEndIndex; i++) {
+        if (((bitmap[i / 8] & 0xFF) & (MASK >>> (i % 8))) != 0) {
+          throw new RuntimeException(
+              "value buffer has been empty, but value [" + i + "] is not null.");
+        }
+      }
+      // LOGGER.info("[tyx] finally there are " + (readEndIndex - readIndex) + "nulls.");
+      for (int i = 0; i < readEndIndex - readIndex; i++) {
+        valueColumnBuilder.appendNull();
+      }
+      valueBuilder.writeDeltaPattern(valueColumnBuilder.build());
+    }
+  }
+
   public void writeColumnBuilderWithNextBatch(
       int readStartIndex, int readEndIndex, TsBlockBuilder builder, int index) throws IOException {
     checkAndUncompressPageData();
     ColumnBuilder columnBuilder = builder.getColumnBuilder(index);
     if (valueBuffer == null) {
+      // LOGGER.info("writeColumnBuilderWithNextBatch valueBuffer == null");
       columnBuilder.appendNull(readEndIndex - readStartIndex);
       return;
     }
+    // LOGGER.info("writeColumnBuilderWithNextBatch valueDecoder == " + valueDecoder.toString());
+
     if (valueDecoder instanceof RleDecoder
         || valueDecoder instanceof DictionaryDecoder
         || (valueDecoder instanceof FloatDecoder && ((FloatDecoder) valueDecoder).isRLEDecoder())) {
+      // LOGGER.info("writeColumnBuilderWithNextBatch to RLE");
       writeColumnBuilderWithNextRLEBatch(readStartIndex, readEndIndex, builder, index);
       return;
     }
+    if (valueDecoder instanceof DeltaBinaryDecoder
+        || (valueDecoder instanceof FloatDecoder
+            && ((FloatDecoder) valueDecoder).isDeltaDecoder())) {
+      // LOGGER.info("writeColumnBuilderWithNextBatch to Delta");
+      writeColumnBuilderWithNextDeltaBatch(readStartIndex, readEndIndex, builder, index);
+      return;
+    }
+
     switch (dataType) {
       case BOOLEAN:
         // skip useless data

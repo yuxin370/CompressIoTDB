@@ -34,7 +34,8 @@ public enum ColumnEncoding {
   BINARY_ARRAY((byte) 3),
   /** All data types. */
   RLE((byte) 4),
-  RLE_ARRAY((byte) 5);
+  RLE_ARRAY((byte) 5),
+  DELTA_ARRAY((byte) 6);
 
   private final byte value;
 
@@ -64,6 +65,8 @@ public enum ColumnEncoding {
         return RLE;
       case 5:
         return RLE_ARRAY;
+      case 6:
+        return DELTA_ARRAY;
       default:
         throw new IllegalArgumentException("Invalid value: " + value);
     }

@@ -26,6 +26,7 @@ import org.apache.tsfile.file.metadata.enums.TSEncoding;
 import org.apache.tsfile.read.common.block.column.DoubleColumn;
 import org.apache.tsfile.read.common.block.column.FloatColumn;
 import org.apache.tsfile.utils.Binary;
+import org.apache.tsfile.utils.DeltaPattern;
 import org.apache.tsfile.utils.RLEPattern;
 import org.apache.tsfile.utils.ReadWriteForEncodingUtils;
 
@@ -126,8 +127,37 @@ public class FloatDecoder extends Decoder {
     }
   }
 
+  @Override
+  public DeltaPattern readDeltaPattern(ByteBuffer buffer, TSDataType datatype) {
+    readMaxPointValue(buffer);
+    if (datatype == TSDataType.DOUBLE) {
+      DeltaPattern value = decoder.readDeltaPattern(buffer, TSDataType.INT64);
+      int valueCount = value.getValue().getPositionCount();
+      double[] results = new double[valueCount];
+      for (int i = 0; i < valueCount; i++) {
+        results[i] = value.getValue().getLong(i) / maxPointValue;
+      }
+      return new DeltaPattern(new DoubleColumn(valueCount, Optional.empty(), results));
+    } else if (datatype == TSDataType.FLOAT) {
+      DeltaPattern value = decoder.readDeltaPattern(buffer, TSDataType.INT32);
+      int valueCount = value.getValue().getPositionCount();
+      float[] results = new float[valueCount];
+      for (int i = 0; i < valueCount; i++) {
+        results[i] = (float) (value.getValue().getInt(i) / maxPointValue);
+      }
+      return new DeltaPattern(new FloatColumn(valueCount, Optional.empty(), results));
+    } else {
+      throw new TsFileDecodingException(
+          String.format("data type %s is not supported by FloatDecoder", datatype));
+    }
+  }
+
   public boolean isRLEDecoder() {
     return decoder instanceof RleDecoder;
+  }
+
+  public boolean isDeltaDecoder() {
+    return decoder instanceof DeltaBinaryDecoder;
   }
 
   private void readMaxPointValue(ByteBuffer buffer) {

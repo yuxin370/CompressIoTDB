@@ -39,6 +39,7 @@ public class ColumnEncoderFactory {
     encodingToEncoder.put(ColumnEncoding.BINARY_ARRAY, new BinaryArrayColumnEncoder());
     encodingToEncoder.put(ColumnEncoding.RLE, new RunLengthColumnEncoder());
     encodingToEncoder.put(ColumnEncoding.RLE_ARRAY, new RLEColumnEncoder());
+    encodingToEncoder.put(ColumnEncoding.DELTA_ARRAY, new DeltaColumnEncoder());
   }
 
   public static ColumnEncoder get(ColumnEncoding columnEncoding) {

@@ -20,12 +20,19 @@
 package org.apache.tsfile.encoding.decoder;
 
 import org.apache.tsfile.encoding.encoder.DeltaBinaryEncoder;
+import org.apache.tsfile.enums.TSDataType;
 import org.apache.tsfile.file.metadata.enums.TSEncoding;
+import org.apache.tsfile.read.common.block.column.IntColumn;
+import org.apache.tsfile.read.common.block.column.LongColumn;
 import org.apache.tsfile.utils.BytesUtils;
+import org.apache.tsfile.utils.DeltaPattern;
+import org.apache.tsfile.utils.DeltaPattern.IntDeltaPattern;
+import org.apache.tsfile.utils.DeltaPattern.LongDeltaPattern;
 import org.apache.tsfile.utils.ReadWriteIOUtils;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Optional;
 
 /**
  * This class is a decoder for decoding the byte array that encoded by {@code
@@ -60,6 +67,9 @@ public abstract class DeltaBinaryDecoder extends Decoder {
   protected abstract void allocateDataArray();
 
   protected abstract void readValue(int i);
+
+  @Override
+  public abstract DeltaPattern readDeltaPattern(ByteBuffer buffer, TSDataType dataType);
 
   /**
    * calculate the bytes length containing v bits.
@@ -104,6 +114,24 @@ public abstract class DeltaBinaryDecoder extends Decoder {
     @Override
     public int readInt(ByteBuffer buffer) {
       return readT(buffer);
+    }
+
+    /**
+     * read a DeltaPattern from the buffer, and decode next pack to {@code data}.
+     *
+     * @param buffer ByteBuffer
+     * @return int
+     */
+    @Override
+    public DeltaPattern readDeltaPattern(ByteBuffer buffer, TSDataType dataType) {
+      if (nextReadIndex == readIntTotalCount) {
+        loadIntBatch(buffer);
+      }
+      int[] newData = new int[data.length];
+      System.arraycopy(data, 0, newData, 0, data.length);
+      newData[0] = data[0] + minDeltaBase;
+      return new IntDeltaPattern(
+          new IntColumn(newData.length, Optional.empty(), newData), minDeltaBase);
     }
 
     /**
@@ -220,6 +248,24 @@ public abstract class DeltaBinaryDecoder extends Decoder {
     public long readLong(ByteBuffer buffer) {
 
       return readT(buffer);
+    }
+
+    /**
+     * read a DeltaPattern from the buffer, and decode next pack to {@code data}.
+     *
+     * @param buffer ByteBuffer
+     * @return int
+     */
+    @Override
+    public DeltaPattern readDeltaPattern(ByteBuffer buffer, TSDataType dataType) {
+      if (nextReadIndex == readIntTotalCount) {
+        loadIntBatch(buffer);
+      }
+      long[] newData = new long[data.length];
+      System.arraycopy(data, 0, newData, 0, data.length);
+      newData[0] = data[0] + minDeltaBase;
+      return new LongDeltaPattern(
+          new LongColumn(newData.length, Optional.empty(), newData), minDeltaBase);
     }
 
     @Override

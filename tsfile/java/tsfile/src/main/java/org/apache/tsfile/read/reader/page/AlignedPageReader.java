@@ -36,6 +36,9 @@ import org.apache.tsfile.read.reader.IPointReader;
 import org.apache.tsfile.read.reader.series.PaginationController;
 import org.apache.tsfile.utils.TsPrimitiveType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
@@ -48,6 +51,7 @@ import java.util.Optional;
 import static org.apache.tsfile.read.reader.series.PaginationController.UNLIMITED_PAGINATION_CONTROLLER;
 
 public class AlignedPageReader implements IPageReader {
+  private static final Logger LOGGER = LoggerFactory.getLogger(AlignedPageReader.class);
 
   private final TimePageReader timePageReader;
   private final List<ValuePageReader> valuePageReaderList;
@@ -203,11 +207,15 @@ public class AlignedPageReader implements IPageReader {
   @Override
   public TsBlock getAllSatisfiedData() throws IOException {
     long[] timeBatch = timePageReader.getNextTimeBatch();
+    // LOGGER.info("[tyx] in getAllSatisfiedData");
 
     if (allPageDataSatisfy()) {
+      // LOGGER.info("[tyx] allPageDataSatisfy");
       buildResultWithoutAnyFilterAndDelete(timeBatch);
       return builder.build();
     }
+
+    // LOGGER.info("[tyx] not allPageDataSatisfy");
 
     // if all the sub sensors' value are null in current row, just discard it
     // if !filter.satisfy, discard this row
@@ -252,6 +260,9 @@ public class AlignedPageReader implements IPageReader {
 
   private void buildResultWithoutAnyFilterAndDelete(long[] timeBatch) throws IOException {
     if (paginationController.hasCurOffset(timeBatch.length)) {
+      // LOGGER.info(
+      //     "[tyx] buildResultWithoutAnyFilterAndDelete -
+      // paginationController.hasCurOffset(timeBatch.length)");
       paginationController.consumeOffset(timeBatch.length);
     } else {
       int readStartIndex = 0;
@@ -276,6 +287,7 @@ public class AlignedPageReader implements IPageReader {
       }
 
       // construct value columns
+      // LOGGER.info("[tyx] value columns.count = " + valueCount);
       for (int i = 0; i < valueCount; i++) {
         ValuePageReader pageReader = valuePageReaderList.get(i);
         if (pageReader != null) {

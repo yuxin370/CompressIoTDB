@@ -34,6 +34,8 @@ import org.apache.tsfile.common.conf.TSFileDescriptor;
 import org.apache.tsfile.enums.TSDataType;
 import org.apache.tsfile.read.common.block.TsBlock;
 import org.apache.tsfile.read.common.block.TsBlockBuilder;
+import org.apache.tsfile.read.common.block.column.DeltaColumn;
+import org.apache.tsfile.read.common.block.column.DeltaColumnBuilder;
 import org.apache.tsfile.read.common.block.column.RLEColumn;
 import org.apache.tsfile.read.common.block.column.RLEColumnBuilder;
 import org.apache.tsfile.read.common.block.column.TimeColumn;
@@ -231,6 +233,36 @@ public class AlignedSeriesScanOperator extends AbstractDataSourceOperator {
     }
   }
 
+  private void appendDeltaToBuilder(int columnIndex, TsBlock tsBlock, int size) {
+    DeltaColumn column = (DeltaColumn) tsBlock.getColumn(columnIndex);
+    ColumnBuilder columnBuilder = resultTsBlockBuilder.getColumnBuilder(columnIndex);
+    Column storeColumn = null;
+    if (!(columnBuilder instanceof DeltaColumnBuilder)) {
+      if (resultTsBlockBuilder.getPositionCount() == 0) {
+        resultTsBlockBuilder.buildValueColumnBuilder(
+            columnIndex,
+            new DeltaColumnBuilder(null, 1, columnBuilder.getDataType()),
+            columnBuilder.getDataType());
+      } else {
+        storeColumn = columnBuilder.build();
+        resultTsBlockBuilder.buildValueColumnBuilder(
+            columnIndex,
+            new DeltaColumnBuilder(null, 1, columnBuilder.getDataType()),
+            columnBuilder.getDataType());
+      }
+    }
+    DeltaColumnBuilder deltaColumnBuilder =
+        (DeltaColumnBuilder) resultTsBlockBuilder.getColumnBuilder(columnIndex);
+    if (storeColumn != null) {
+      deltaColumnBuilder.writeDeltaPattern(storeColumn);
+    }
+    Column[] columns = column.getVisibleColumns();
+
+    for (int i = 0, patternCount = columns.length; i < patternCount; i++) {
+      deltaColumnBuilder.writeDeltaPattern(columns[i]);
+    }
+  }
+
   private void appendOneColumn(int columnIndex, TsBlock tsBlock, int size) {
     ColumnBuilder columnBuilder = resultTsBlockBuilder.getColumnBuilder(columnIndex);
     Column column = tsBlock.getColumn(columnIndex);
@@ -238,8 +270,12 @@ public class AlignedSeriesScanOperator extends AbstractDataSourceOperator {
       // if((columnBuilder instanceof RLEColumnBuilder
       // || resultTsBlockBuilder.getPositionCount() == 0))
       appendRLEToBuilder(columnIndex, tsBlock, size);
+    } else if (column instanceof DeltaColumn) {
+      appendDeltaToBuilder(columnIndex, tsBlock, size);
     } else if (columnBuilder instanceof RLEColumnBuilder) {
       ((RLEColumnBuilder) columnBuilder).writeRLEPattern(column, size);
+    } else if (columnBuilder instanceof DeltaColumnBuilder) {
+      throw new RuntimeException("normal column can not be build by DeltaColumnBuilder.");
     } else {
       if (column.mayHaveNull()) {
         for (int i = 0; i < size; i++) {

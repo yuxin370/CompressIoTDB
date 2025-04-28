@@ -23,6 +23,8 @@ import org.apache.iotdb.db.queryengine.transformation.dag.column.ColumnTransform
 
 import org.apache.tsfile.block.column.Column;
 import org.apache.tsfile.block.column.ColumnBuilder;
+import org.apache.tsfile.read.common.block.column.DeltaColumn;
+import org.apache.tsfile.read.common.block.column.DeltaColumnBuilder;
 import org.apache.tsfile.read.common.block.column.RLEColumn;
 import org.apache.tsfile.read.common.block.column.RLEColumnBuilder;
 import org.apache.tsfile.read.common.block.column.RunLengthEncodedColumn;
@@ -58,6 +60,13 @@ public abstract class BinaryColumnTransformer extends ColumnTransformer {
             || (leftColumn instanceof RunLengthEncodedColumn
                 && rightColumn instanceof RLEColumn))) {
       builder = new RLEColumnBuilder(null, 1, returnType.getTypeEnum());
+    } else if (((this instanceof ArithmeticAdditionColumnTransformer)
+            || (this instanceof ArithmeticSubtractionColumnTransformer))
+        && ((leftColumn instanceof DeltaColumn && rightColumn instanceof DeltaColumn)
+            || (leftColumn instanceof DeltaColumn && rightColumn instanceof RunLengthEncodedColumn)
+            || (leftColumn instanceof RunLengthEncodedColumn
+                && rightColumn instanceof DeltaColumn))) {
+      builder = new DeltaColumnBuilder(null, 1, returnType.getTypeEnum());
     } else {
       builder = returnType.createColumnBuilder(positionCount);
     }

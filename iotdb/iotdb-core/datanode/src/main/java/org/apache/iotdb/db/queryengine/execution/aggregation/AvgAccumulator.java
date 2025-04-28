@@ -24,6 +24,11 @@ import org.apache.tsfile.block.column.ColumnBuilder;
 import org.apache.tsfile.enums.TSDataType;
 import org.apache.tsfile.file.metadata.statistics.IntegerStatistics;
 import org.apache.tsfile.file.metadata.statistics.Statistics;
+import org.apache.tsfile.read.common.block.column.DeltaColumn;
+import org.apache.tsfile.read.common.block.column.DoubleColumn;
+import org.apache.tsfile.read.common.block.column.FloatColumn;
+import org.apache.tsfile.read.common.block.column.IntColumn;
+import org.apache.tsfile.read.common.block.column.LongColumn;
 import org.apache.tsfile.read.common.block.column.RLEColumn;
 import org.apache.tsfile.utils.BitMap;
 import org.apache.tsfile.utils.Pair;
@@ -215,6 +220,29 @@ public class AvgAccumulator implements Accumulator {
         i++;
       }
       return;
+    } else if (column[1] instanceof DeltaColumn) {
+      Column[] patterns = ((DeltaColumn) column[1]).getVisibleColumns();
+      int curIndex = 0, i = 0;
+      while (curIndex < count) {
+        IntColumn curPattern = ((IntColumn) patterns[i]);
+        int curPatternLength = curPattern.getPositionCount();
+        int cum = 0;
+        curPatternLength =
+            curIndex + curPatternLength - 1 <= count ? curPatternLength : count - curIndex + 1;
+        for (int j = 0; j < curPatternLength; j++, curIndex++) {
+          cum += curPattern.getInt(j);
+          if (bitMap != null && !bitMap.isMarked(curIndex)) {
+            continue;
+          }
+          if (!curPattern.isNull(j)) {
+            initResult = true;
+            countValue++;
+            sumValue += cum;
+          }
+        }
+        i++;
+      }
+      return;
     }
     for (int i = 0; i < count; i++) {
       if (bitMap != null && !bitMap.isMarked(i)) {
@@ -266,6 +294,29 @@ public class AvgAccumulator implements Accumulator {
               countValue++;
               sumValue += curPattern.getLong(j);
             }
+          }
+        }
+        i++;
+      }
+      return;
+    } else if (column[1] instanceof DeltaColumn) {
+      Column[] patterns = ((DeltaColumn) column[1]).getVisibleColumns();
+      int curIndex = 0, i = 0;
+      while (curIndex < count) {
+        LongColumn curPattern = ((LongColumn) patterns[i]);
+        int curPatternLength = curPattern.getPositionCount();
+        int cum = 0;
+        curPatternLength =
+            curIndex + curPatternLength - 1 <= count ? curPatternLength : count - curIndex + 1;
+        for (int j = 0; j < curPatternLength; j++, curIndex++) {
+          cum += curPattern.getLong(j);
+          if (bitMap != null && !bitMap.isMarked(curIndex)) {
+            continue;
+          }
+          if (!curPattern.isNull(j)) {
+            initResult = true;
+            countValue++;
+            sumValue += cum;
           }
         }
         i++;
@@ -326,6 +377,29 @@ public class AvgAccumulator implements Accumulator {
         i++;
       }
       return;
+    } else if (column[1] instanceof DeltaColumn) {
+      Column[] patterns = ((DeltaColumn) column[1]).getVisibleColumns();
+      int curIndex = 0, i = 0;
+      while (curIndex < count) {
+        FloatColumn curPattern = ((FloatColumn) patterns[i]);
+        int curPatternLength = curPattern.getPositionCount();
+        int cum = 0;
+        curPatternLength =
+            curIndex + curPatternLength - 1 <= count ? curPatternLength : count - curIndex + 1;
+        for (int j = 0; j < curPatternLength; j++, curIndex++) {
+          cum += curPattern.getFloat(j);
+          if (bitMap != null && !bitMap.isMarked(curIndex)) {
+            continue;
+          }
+          if (!curPattern.isNull(j)) {
+            initResult = true;
+            countValue++;
+            sumValue += cum;
+          }
+        }
+        i++;
+      }
+      return;
     }
     for (int i = 0; i < count; i++) {
       if (bitMap != null && !bitMap.isMarked(i)) {
@@ -376,6 +450,29 @@ public class AvgAccumulator implements Accumulator {
               countValue++;
               sumValue += curPattern.getDouble(j);
             }
+          }
+        }
+        i++;
+      }
+      return;
+    } else if (column[1] instanceof DeltaColumn) {
+      Column[] patterns = ((DeltaColumn) column[1]).getVisibleColumns();
+      int curIndex = 0, i = 0;
+      while (curIndex < count) {
+        DoubleColumn curPattern = ((DoubleColumn) patterns[i]);
+        int curPatternLength = curPattern.getPositionCount();
+        int cum = 0;
+        curPatternLength =
+            curIndex + curPatternLength - 1 <= count ? curPatternLength : count - curIndex + 1;
+        for (int j = 0; j < curPatternLength; j++, curIndex++) {
+          cum += curPattern.getDouble(j);
+          if (bitMap != null && !bitMap.isMarked(curIndex)) {
+            continue;
+          }
+          if (!curPattern.isNull(j)) {
+            initResult = true;
+            countValue++;
+            sumValue += cum;
           }
         }
         i++;

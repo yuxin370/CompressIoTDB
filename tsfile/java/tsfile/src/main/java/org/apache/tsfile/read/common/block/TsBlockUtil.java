@@ -25,6 +25,8 @@ import org.apache.tsfile.enums.TSDataType;
 import org.apache.tsfile.read.common.TimeRange;
 import org.apache.tsfile.read.common.block.column.BinaryColumnBuilder;
 import org.apache.tsfile.read.common.block.column.BooleanColumnBuilder;
+import org.apache.tsfile.read.common.block.column.DeltaColumn;
+import org.apache.tsfile.read.common.block.column.DeltaColumnBuilder;
 import org.apache.tsfile.read.common.block.column.DoubleColumnBuilder;
 import org.apache.tsfile.read.common.block.column.FloatColumnBuilder;
 import org.apache.tsfile.read.common.block.column.IntColumnBuilder;
@@ -144,6 +146,83 @@ public class TsBlockUtil {
           }
           pidx++;
         }
+      } else if (columnBuilder instanceof DeltaColumnBuilder) {
+
+        Column[] columns = ((DeltaColumn) valueColumn).getVisibleColumns();
+        int rowIndex = 0, pidx = 0;
+        while (rowIndex < readEndIndex) {
+          int valueCount = 0;
+          int len =
+              columns[pidx].getPositionCount() > readEndIndex - rowIndex
+                  ? readEndIndex - rowIndex
+                  : columns[pidx].getPositionCount();
+          int cumInt = 0;
+          long cumLong = 0L;
+          float cumFloat = 0f;
+          double cumDouble = 0d;
+          ColumnBuilder valueColumnBuilder =
+              contructColumnBuilders(Collections.singletonList(valueColumn.getDataType()))[0];
+          for (int j = 0; j < len; j++, rowIndex++) {
+            if (keepCurrentRow[rowIndex]) {
+              valueCount++;
+              if (columns[pidx].isNull(j)) {
+                valueColumnBuilder.appendNull();
+              } else {
+
+                Object raw = columns[pidx].getObject(j);
+
+                switch (valueColumnBuilder.getDataType()) {
+                  case INT32:
+                    int vi = (Integer) raw + cumInt;
+                    valueColumnBuilder.writeInt(vi);
+                    break;
+                  case INT64:
+                    long vl = (Long) raw + cumLong;
+                    valueColumnBuilder.writeLong(vl);
+                    break;
+                  case FLOAT:
+                    float vf = (Float) raw + cumFloat;
+                    valueColumnBuilder.writeFloat(vf);
+                    break;
+                  case DOUBLE:
+                    double vd = (Double) raw + cumDouble;
+                    valueColumnBuilder.writeDouble(vd);
+                    break;
+                  default:
+                    valueColumnBuilder.writeObject(raw);
+                }
+              }
+            } else {
+
+              Object raw = columns[pidx].getObject(j);
+              if (raw != null) {
+                switch (columns[pidx].getDataType()) {
+                  case INT32:
+                    cumInt += (Integer) raw;
+                    break;
+                  case INT64:
+                    cumLong += (Long) raw;
+                    break;
+                  case FLOAT:
+                    cumFloat += (Float) raw;
+                    break;
+                  case DOUBLE:
+                    cumDouble += (Double) raw;
+                    break;
+                  default:
+                    // for other types, no cumulative delta
+                }
+              }
+            }
+          }
+          if (valueCount > 0) {
+            ((RLEColumnBuilder) columnBuilder)
+                .writeRLEPattern(valueColumnBuilder.build(), valueCount);
+          }
+
+          pidx++;
+        }
+
       } else {
         for (int rowIndex = 0; rowIndex < readEndIndex; rowIndex++) {
           if (keepCurrentRow[rowIndex]) {
@@ -195,7 +274,7 @@ public class TsBlockUtil {
         IntColumnBuilder intColumnBuilder = new IntColumnBuilder(null, positionCount);
         if (column.mayHaveNull()) {
           for (int i = 0; i < positionCount; i++) {
-            if (column.isNull(i)) {
+            if (!column.isNull(i)) {
               intColumnBuilder.writeInt(column.getInt(i));
             } else {
               intColumnBuilder.appendNull();
@@ -211,7 +290,7 @@ public class TsBlockUtil {
         BooleanColumnBuilder booleanColumnbuilder = new BooleanColumnBuilder(null, positionCount);
         if (column.mayHaveNull()) {
           for (int i = 0; i < positionCount; i++) {
-            if (column.isNull(i)) {
+            if (!column.isNull(i)) {
               booleanColumnbuilder.writeBoolean(column.getBoolean(i));
             } else {
               booleanColumnbuilder.appendNull();
@@ -227,7 +306,7 @@ public class TsBlockUtil {
         DoubleColumnBuilder doubleColumnBuilder = new DoubleColumnBuilder(null, positionCount);
         if (column.mayHaveNull()) {
           for (int i = 0; i < positionCount; i++) {
-            if (column.isNull(i)) {
+            if (!column.isNull(i)) {
               doubleColumnBuilder.writeDouble(column.getDouble(i));
             } else {
               doubleColumnBuilder.appendNull();
@@ -243,7 +322,7 @@ public class TsBlockUtil {
         FloatColumnBuilder floatColumnBuilder = new FloatColumnBuilder(null, positionCount);
         if (column.mayHaveNull()) {
           for (int i = 0; i < positionCount; i++) {
-            if (column.isNull(i)) {
+            if (!column.isNull(i)) {
               floatColumnBuilder.writeFloat(column.getFloat(i));
             } else {
               floatColumnBuilder.appendNull();
@@ -259,7 +338,7 @@ public class TsBlockUtil {
         LongColumnBuilder longColumnBuilder = new LongColumnBuilder(null, positionCount);
         if (column.mayHaveNull()) {
           for (int i = 0; i < positionCount; i++) {
-            if (column.isNull(i)) {
+            if (!column.isNull(i)) {
               longColumnBuilder.writeLong(column.getLong(i));
             } else {
               longColumnBuilder.appendNull();
@@ -275,7 +354,7 @@ public class TsBlockUtil {
         BinaryColumnBuilder binaryColumnBuilder = new BinaryColumnBuilder(null, positionCount);
         if (column.mayHaveNull()) {
           for (int i = 0; i < positionCount; i++) {
-            if (column.isNull(i)) {
+            if (!column.isNull(i)) {
               binaryColumnBuilder.writeBinary(column.getBinary(i));
             } else {
               binaryColumnBuilder.appendNull();
@@ -290,6 +369,126 @@ public class TsBlockUtil {
       default:
         throw new UnSupportedDataTypeException(
             "RLEColumn can't be converted to " + dataType + " column.");
+    }
+  }
+
+  // convert DeltaColumn to generic column
+  public static Column convertDeltaColumnToGenericColumn(Column column) {
+    if (!(column instanceof DeltaColumn)) {
+      return column;
+    }
+    Column[] patterns = ((DeltaColumn) column).getVisibleColumns();
+    int patternCount = patterns.length;
+    TSDataType dataType = column.getDataType();
+    int positionCount = column.getPositionCount();
+    switch (dataType) {
+      case INT32:
+        IntColumnBuilder intBuilder = new IntColumnBuilder(null, positionCount);
+        int cumInt = 0;
+        for (int j = 0; j < patternCount; j++) {
+          Column pat = patterns[j];
+          int length = pat.getPositionCount();
+          if (pat.mayHaveNull()) {
+            for (int i = 0; i < length; i++) {
+              if (pat.isNull(i)) {
+                intBuilder.appendNull();
+              } else {
+                int delta = pat.getInt(i);
+                intBuilder.writeInt(cumInt + delta);
+                cumInt += delta;
+              }
+            }
+          } else {
+            for (int i = 0; i < length; i++) {
+              int delta = pat.getInt(i);
+              intBuilder.writeInt(cumInt + delta);
+              cumInt += delta;
+            }
+          }
+        }
+        return intBuilder.build();
+
+      case DOUBLE:
+        DoubleColumnBuilder doubleBuilder = new DoubleColumnBuilder(null, positionCount);
+        double cumDouble = 0;
+        for (int j = 0; j < patternCount; j++) {
+          Column pat = patterns[j];
+          int length = pat.getPositionCount();
+          if (pat.mayHaveNull()) {
+            for (int i = 0; i < length; i++) {
+              if (pat.isNull(i)) {
+                doubleBuilder.appendNull();
+              } else {
+                double delta = pat.getDouble(i);
+                doubleBuilder.writeDouble(cumDouble + delta);
+                cumDouble += delta;
+              }
+            }
+          } else {
+            for (int i = 0; i < length; i++) {
+              double delta = pat.getDouble(i);
+              doubleBuilder.writeDouble(cumDouble + delta);
+              cumDouble += delta;
+            }
+          }
+        }
+        return doubleBuilder.build();
+
+      case FLOAT:
+        FloatColumnBuilder floatBuilder = new FloatColumnBuilder(null, positionCount);
+        float cumFloat = 0f;
+        for (int j = 0; j < patternCount; j++) {
+          Column pat = patterns[j];
+          int length = pat.getPositionCount();
+          if (pat.mayHaveNull()) {
+            for (int i = 0; i < length; i++) {
+              if (pat.isNull(i)) {
+                floatBuilder.appendNull();
+              } else {
+                float delta = pat.getFloat(i);
+                floatBuilder.writeFloat(cumFloat + delta);
+                cumFloat += delta;
+              }
+            }
+          } else {
+            for (int i = 0; i < length; i++) {
+              float delta = pat.getFloat(i);
+              floatBuilder.writeFloat(cumFloat + delta);
+              cumFloat += delta;
+            }
+          }
+        }
+        return floatBuilder.build();
+
+      case INT64:
+        LongColumnBuilder longBuilder = new LongColumnBuilder(null, positionCount);
+        long cumLong = 0L;
+        for (int j = 0; j < patternCount; j++) {
+          Column pat = patterns[j];
+          int length = pat.getPositionCount();
+          if (pat.mayHaveNull()) {
+            for (int i = 0; i < length; i++) {
+              if (pat.isNull(i)) {
+                longBuilder.appendNull();
+              } else {
+                long delta = pat.getLong(i);
+                longBuilder.writeLong(cumLong + delta);
+                cumLong += delta;
+              }
+            }
+          } else {
+            for (int i = 0; i < length; i++) {
+              long delta = pat.getLong(i);
+              longBuilder.writeLong(cumLong + delta);
+              cumLong += delta;
+            }
+          }
+        }
+        return longBuilder.build();
+
+      default:
+        throw new UnSupportedDataTypeException(
+            "DeltaColumn can't be converted to " + dataType + " column.");
     }
   }
 
