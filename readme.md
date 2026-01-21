@@ -19,10 +19,8 @@ Set the maximum number of open files to 65,535.
 ### Step 1: Download CompressIoTDB Repository
 To get started, install CompressIoTDB on either a server or a personal computer. 
 
-Download the repository from the anonymized repository:
- 
- ```shell
- https://anonymous.4open.science/r/CompressIoTDB-EEE8
+```
+git clone https://github.com/yuxin370/CompressIoTDB.git
 ```
 
 ### Step 2: Build CompressIoTDB
