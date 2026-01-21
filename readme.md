@@ -140,7 +140,7 @@ LOG_PRINT_INTERVAL=90
 
 This project includes code from [Apache IoTDB](https://github.com/apache/iotdb) and [Apache TsFile](https://github.com/apache/tsfile), which is licensed under the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
-## Cite our work
+## Cite Our Work
 
 ```
 @article{10.14778/3748191.3748204,
