@@ -140,3 +140,23 @@ LOG_PRINT_INTERVAL=90
 
 This project includes code from [Apache IoTDB](https://github.com/apache/iotdb) and [Apache TsFile](https://github.com/apache/tsfile), which is licensed under the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
+## Cite our work
+
+```
+@article{10.14778/3748191.3748204,
+author = {Tang, Yuxin and Zhang, Feng and Guan, Jiawei and Tian, Yuan and Huang, Xiangdong and Wang, Chen and Wang, Jianmin and Du, Xiaoyong},
+title = {Improving Time Series Data Compression in Apache IoTDB},
+year = {2025},
+issue_date = {June 2025},
+publisher = {VLDB Endowment},
+volume = {18},
+number = {10},
+issn = {2150-8097},
+url = {https://doi.org/10.14778/3748191.3748204},
+doi = {10.14778/3748191.3748204},
+journal = {Proc. VLDB Endow.},
+month = jun,
+pages = {3406–3420},
+numpages = {15}
+}
+```
