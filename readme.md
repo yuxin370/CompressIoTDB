@@ -30,10 +30,10 @@ CompressIoTDB is integrated into Apache IoTDB seamlessly. You can build Compress
 ```shell
 # install tsfile package locally
 > cd your/path/to/CompressIoTDB/tsfile 
-> mvn clean install -o -P with-java -DskipTests
+> mvn clean install -P with-java -DskipTests
 # build iotdb
 > cd your/path/to/CompressIoTDB/iotdb
-> mvn clean package -o -pl distribution -am -DskipTests
+> mvn clean package -pl distribution -am -DskipTests
 ```
 For more information about system building, please refer to the official Apache IoTDB documentation.
 
